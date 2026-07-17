@@ -1,4 +1,8 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
+const BASE_URL = typeof window !== 'undefined'
+  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://127.0.0.1:8000'
+      : '')
+  : 'http://127.0.0.1:8000';
 
 function getHeaders(token?: string, isMultipart = false) {
   const headers: HeadersInit = {};

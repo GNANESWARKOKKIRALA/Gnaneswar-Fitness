@@ -69,7 +69,6 @@ web_modules
 
 # Next.js build output
 .next
-out
 
 # Python virtual environment
 venv/

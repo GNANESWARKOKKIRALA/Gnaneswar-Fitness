@@ -53,10 +53,16 @@ app.include_router(chat.router, prefix="/api")
 app.include_router(announcements.router, prefix="/api")
 app.include_router(transformations.router, prefix="/api")
 
-@app.get("/")
-def read_root():
-    return {
-        "status": "online",
-        "message": "Bodybuilding Coaching Platform API is running.",
-        "docs_url": "/docs"
-    }
+# Serve Next.js static exported frontend
+frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "out"))
+
+if os.path.exists(frontend_dir):
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+else:
+    @app.get("/")
+    def read_root():
+        return {
+            "status": "online",
+            "message": "Bodybuilding Coaching Platform API is running. (Frontend build folder not found)",
+            "docs_url": "/docs"
+        }

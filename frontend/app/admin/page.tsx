@@ -37,7 +37,10 @@ const resolveMediaUrl = (url: string) => {
     return url;
   }
   const path = url.startsWith('/') ? url : `/${url}`;
-  return `http://127.0.0.1:8000${path}`;
+  const base = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://127.0.0.1:8000'
+    : '';
+  return `${base}${path}`;
 };
 
 interface Program {
