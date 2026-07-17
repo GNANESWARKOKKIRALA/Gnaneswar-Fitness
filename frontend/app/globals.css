@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+:root {
+  --background: #08080a;
+  --foreground: #f3f4f6;
+  --card-bg: #111115;
+  --card-border: rgba(229, 169, 60, 0.22);
+  --gold: #e5a93c;
+  --gold-hover: #c58f2c;
+  --gold-glow: rgba(229, 169, 60, 0.18);
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-gold: var(--gold);
+  --color-gold-hover: var(--gold-hover);
+  --color-gold-glow: var(--gold-glow);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(18, 18, 22, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #ffe082 0%, #e5a93c 50%, #b27a1a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, #ffe082 0%, #e5a93c 100%);
+}
+
+.gold-border-glow:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 15px var(--gold-glow);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #08080a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f1f26;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
