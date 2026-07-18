@@ -194,6 +194,16 @@ export default function AdminDashboard() {
   const [sendingMsg, setSendingMsg] = useState(false);
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
+  // Media upload and rename states
+  const [mediaUploadFile, setMediaUploadFile] = useState<File | null>(null);
+  const [mediaUploading, setMediaUploading] = useState(false);
+
+  // Client Details edit states
+  const [isEditingClient, setIsEditingClient] = useState(false);
+  const [editClientName, setEditClientName] = useState('');
+  const [editClientEmail, setEditClientEmail] = useState('');
+  const [editClientPhone, setEditClientPhone] = useState('');
+
   useEffect(() => {
     if (!authLoading) {
       if (!authUser) {
@@ -489,6 +499,84 @@ export default function AdminDashboard() {
       loadAdminData();
     } catch (err: any) {
       alert("Delete failed: " + err.message);
+    }
+  };
+
+  const handleMediaUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !mediaUploadFile) return;
+    setMediaUploading(true);
+    const formData = new FormData();
+    formData.append('file', mediaUploadFile);
+    try {
+      await apiFetch('/api/admin/media', {
+        method: 'POST',
+        body: formData
+      }, token);
+      alert("File uploaded successfully!");
+      setMediaUploadFile(null);
+      const fileInput = document.getElementById('media-upload-input') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+      loadAdminData();
+    } catch (err: any) {
+      alert("Upload failed: " + err.message);
+    } finally {
+      setMediaUploading(false);
+    }
+  };
+
+  const handleRenameMedia = async (filename: string) => {
+    if (!token) return;
+    const newName = prompt("Enter new name for the file:", filename);
+    if (!newName || newName === filename) return;
+    try {
+      await apiFetch(`/api/admin/media/${filename}/rename`, {
+        method: 'PUT',
+        body: JSON.stringify({ new_filename: newName })
+      }, token);
+      alert("File renamed successfully!");
+      loadAdminData();
+    } catch (err: any) {
+      alert("Rename failed: " + err.message);
+    }
+  };
+
+  const handleStartEditClient = (client: ClientUser) => {
+    setIsEditingClient(true);
+    setEditClientName(client.name);
+    setEditClientEmail(client.email);
+    setEditClientPhone(client.phone || '');
+  };
+
+  const handleCancelEditClient = () => {
+    setIsEditingClient(false);
+  };
+
+  const handleSaveClientDetails = async (clientId: number) => {
+    if (!token) return;
+    try {
+      await apiFetch(`/api/admin/users/${clientId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: editClientName,
+          email: editClientEmail,
+          phone: editClientPhone
+        })
+      }, token);
+      alert("Client details updated successfully!");
+      setIsEditingClient(false);
+      
+      const clientsData = await apiFetch('/api/admin/users', {}, token);
+      setClients(clientsData);
+      
+      // Refresh current selection
+      const updatedClient = clientsData.find((c: any) => c.id === clientId);
+      if (updatedClient) {
+        setSelectedClientLogs(await apiFetch(`/api/logs/client/${clientId}`, {}, token));
+        setSelectedClientPlans(await apiFetch(`/api/assignments/client/${clientId}`, {}, token));
+      }
+    } catch (err: any) {
+      alert("Update failed: " + err.message);
     }
   };
 
@@ -898,21 +986,78 @@ export default function AdminDashboard() {
                   <div className="glass-panel p-6 rounded-3xl border border-card-border space-y-6">
                     {/* Header profile info */}
                     {clients.filter(c => c.id === selectedClientId).map(client => (
-                      <div key={client.id} className="border-b border-card-border pb-4 flex justify-between items-center">
-                        <div>
-                          <h3 className="text-lg font-bold text-gold">{client.name}</h3>
-                          <p className="text-xs text-gray-400">{client.email} | {client.phone || 'No phone'}</p>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setActiveTab('chat');
-                            setChatClientId(client.id);
-                          }}
-                          className="px-4 py-2 bg-gold text-background rounded-full text-xs font-bold hover:scale-105 transition-all flex items-center space-x-1.5"
-                        >
-                          <MessageSquare className="h-3.5 w-3.5" />
-                          <span>Chat Room</span>
-                        </button>
+                      <div key={client.id} className="border-b border-card-border pb-4">
+                        {isEditingClient ? (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-[10px] text-gray-400 font-bold uppercase">Name</label>
+                              <input
+                                type="text"
+                                value={editClientName}
+                                onChange={(e) => setEditClientName(e.target.value)}
+                                className="w-full bg-[#050507] border border-card-border focus:border-gold/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-gray-400 font-bold uppercase">Email</label>
+                              <input
+                                type="email"
+                                value={editClientEmail}
+                                onChange={(e) => setEditClientEmail(e.target.value)}
+                                className="w-full bg-[#050507] border border-card-border focus:border-gold/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-gray-400 font-bold uppercase">Phone</label>
+                              <input
+                                type="text"
+                                value={editClientPhone}
+                                onChange={(e) => setEditClientPhone(e.target.value)}
+                                className="w-full bg-[#050507] border border-card-border focus:border-gold/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                              />
+                            </div>
+                            <div className="flex space-x-2 pt-2">
+                              <button
+                                onClick={() => handleSaveClientDetails(client.id)}
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-full text-xs font-bold transition-all"
+                              >
+                                Save Changes
+                              </button>
+                              <button
+                                onClick={handleCancelEditClient}
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-full text-xs font-bold transition-all"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h3 className="text-lg font-bold text-gold">{client.name}</h3>
+                              <p className="text-xs text-gray-400">{client.email} | {client.phone || 'No phone'}</p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <button
+                                onClick={() => handleStartEditClient(client)}
+                                className="px-3.5 py-2 border border-card-border hover:border-gold text-gray-300 hover:text-gold rounded-full text-xs font-bold transition-all flex items-center space-x-1"
+                              >
+                                <Edit className="h-3.5 w-3.5" />
+                                <span>Edit</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setActiveTab('chat');
+                                  setChatClientId(client.id);
+                                }}
+                                className="px-4 py-2 bg-gold text-background rounded-full text-xs font-bold hover:scale-105 transition-all flex items-center space-x-1.5"
+                              >
+                                <MessageSquare className="h-3.5 w-3.5" />
+                                <span>Chat Room</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
 
@@ -1381,7 +1526,31 @@ export default function AdminDashboard() {
           {/* Tab 7: Media Assets Library */}
           {activeTab === 'media' && (
             <div className="space-y-6">
-              <h2 className="text-xl font-bold text-white">Central Media Assets</h2>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <h2 className="text-xl font-bold text-white">Central Media Assets</h2>
+                
+                {/* Upload Form */}
+                <form onSubmit={handleMediaUpload} className="flex items-center space-x-2 bg-card-bg/40 border border-card-border p-2 rounded-2xl">
+                  <input
+                    type="file"
+                    id="media-upload-input"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setMediaUploadFile(e.target.files[0]);
+                      }
+                    }}
+                    className="text-xs text-gray-400 file:bg-gray-800 file:hover:bg-gray-700 file:text-gold file:border-0 file:rounded-xl file:px-3 file:py-1.5 file:mr-2 file:cursor-pointer"
+                  />
+                  <button
+                    type="submit"
+                    disabled={mediaUploading || !mediaUploadFile}
+                    className="px-4 py-1.5 bg-gold text-background rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center space-x-1"
+                  >
+                    <UploadCloud className="h-3.5 w-3.5" />
+                    <span>{mediaUploading ? "Uploading..." : "Upload File"}</span>
+                  </button>
+                </form>
+              </div>
               
               {mediaFiles.length === 0 ? (
                 <div className="glass-panel p-10 rounded-3xl border border-card-border text-center text-gray-400 text-sm">
@@ -1404,14 +1573,23 @@ export default function AdminDashboard() {
                         )}
                         
                         <div className="pt-2 flex justify-between items-center text-[10px]">
-                          <span className="text-gray-400 truncate w-3/4">{file.name}</span>
-                          <button 
-                            onClick={() => handleDeleteMedia(file.name)}
-                            className="text-red-500 hover:text-red-400"
-                            title="Delete file"
-                          >
-                            <Trash className="h-3 w-3" />
-                          </button>
+                          <span className="text-gray-400 truncate w-1/2" title={file.name}>{file.name}</span>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleRenameMedia(file.name)}
+                              className="text-gold hover:text-gold/80"
+                              title="Rename File"
+                            >
+                              <Edit className="h-3 w-3" />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteMedia(file.name)}
+                              className="text-red-500 hover:text-red-400"
+                              title="Delete file"
+                            >
+                              <Trash className="h-3 w-3" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );

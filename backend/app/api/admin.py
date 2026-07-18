@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from datetime import datetime
+from pydantic import BaseModel
+import shutil
 from app.models.database import get_db
 from app.models.models import Order, User, Program, Transformation
 from app.schemas.schemas import OrderResponse, OrderRejectRequest, ProgramResponse, ProgramCreate, UserResponse
@@ -135,3 +137,88 @@ def delete_media_file(
         
     os.remove(filepath)
     return {"message": f"File {filename} deleted successfully"}
+
+# Schemas for new admin management actions
+class RenameMediaRequest(BaseModel):
+    new_filename: str
+
+class UserUpdateRequest(BaseModel):
+    name: str
+    email: str
+    phone: Optional[str] = None
+
+@router.post("/media")
+def upload_media_file(
+    file: UploadFile = File(...),
+    current_admin: User = Depends(get_current_admin)
+):
+    if not os.path.exists(settings.UPLOAD_DIR):
+        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+    
+    filename = os.path.basename(file.filename)
+    filepath = os.path.join(settings.UPLOAD_DIR, filename)
+    
+    with open(filepath, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    return {
+        "name": filename,
+        "url": f"/uploads/{filename}",
+        "size": os.path.getsize(filepath),
+        "modified_at": os.path.getmtime(filepath)
+    }
+
+@router.put("/media/{filename}/rename")
+def rename_media_file(
+    filename: str,
+    rename_in: RenameMediaRequest,
+    current_admin: User = Depends(get_current_admin)
+):
+    if ".." in filename or "/" in filename or "\\" in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+        
+    old_filepath = os.path.join(settings.UPLOAD_DIR, filename)
+    if not os.path.exists(old_filepath):
+        raise HTTPException(status_code=404, detail="File not found")
+        
+    new_filename = os.path.basename(rename_in.new_filename)
+    _, old_ext = os.path.splitext(filename)
+    _, new_ext = os.path.splitext(new_filename)
+    if not new_ext:
+        new_filename += old_ext
+    elif new_ext.lower() != old_ext.lower():
+        new_filename = os.path.splitext(new_filename)[0] + old_ext
+        
+    new_filepath = os.path.join(settings.UPLOAD_DIR, new_filename)
+    if os.path.exists(new_filepath):
+        raise HTTPException(status_code=400, detail="A file with that name already exists")
+        
+    os.rename(old_filepath, new_filepath)
+    return {
+        "name": new_filename,
+        "url": f"/uploads/{new_filename}"
+    }
+
+@router.put("/users/{user_id}", response_model=UserResponse)
+def update_user_details(
+    user_id: int,
+    user_in: UserUpdateRequest,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    if user.email != user_in.email:
+        duplicate = db.query(User).filter(User.email == user_in.email).first()
+        if duplicate:
+            raise HTTPException(status_code=400, detail="Email already in use by another user")
+            
+    user.name = user_in.name
+    user.email = user_in.email
+    user.phone = user_in.phone
+    
+    db.commit()
+    db.refresh(user)
+    return user
