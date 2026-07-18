@@ -19,6 +19,21 @@ interface ClientTransformation {
   isSelf?: boolean;
 }
 
+const resolveMediaUrl = (url: string) => {
+  if (!url) return '';
+  const isProd = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+  
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    if (isProd) {
+      return url.replace('http://127.0.0.1:8000', '').replace('http://localhost:8000', '');
+    }
+    return url;
+  }
+  const path = url.startsWith('/') ? url : `/${url}`;
+  const base = !isProd ? 'http://127.0.0.1:8000' : '';
+  return `${base}${path}`;
+};
+
 const DEFAULT_CLIENT_TRANSFORMATIONS: ClientTransformation[] = [
   {
     id: 1003,
@@ -172,7 +187,7 @@ export default function Transformations() {
               <p className="text-center text-xs uppercase tracking-widest text-gray-500 font-bold">Before (60 kg)</p>
               <div className="relative bg-[#050507]/90 rounded-2xl border border-card-border p-2 overflow-hidden flex items-center justify-center">
                 <img 
-                  src={activeCoachTrans.beforeImg} 
+                  src={resolveMediaUrl(activeCoachTrans.beforeImg)} 
                   alt="Before" 
                   className="h-[380px] sm:h-[450px] w-full object-contain rounded-xl"
                 />
@@ -183,7 +198,7 @@ export default function Transformations() {
               <p className="text-center text-xs uppercase tracking-widest text-gold font-bold">After (70 kg) - Front Flex</p>
               <div className="relative bg-[#050507]/90 rounded-2xl border border-gold/25 p-2 overflow-hidden flex items-center justify-center">
                 <img 
-                  src={activeCoachTrans.afterImg} 
+                  src={resolveMediaUrl(activeCoachTrans.afterImg)} 
                   alt="After Front" 
                   className="h-[380px] sm:h-[450px] w-full object-contain rounded-xl"
                 />
@@ -194,7 +209,7 @@ export default function Transformations() {
               <p className="text-center text-xs uppercase tracking-widest text-gold font-bold">After (70 kg) - Side Flex</p>
               <div className="relative bg-[#050507]/90 rounded-2xl border border-gold/25 p-2 overflow-hidden flex items-center justify-center">
                 <img 
-                  src={activeCoachTrans.afterImg2 || "http://127.0.0.1:8000/uploads/after_side_self.jpg"} 
+                  src={resolveMediaUrl(activeCoachTrans.afterImg2 || "http://127.0.0.1:8000/uploads/after_side_self.jpg")} 
                   alt="After Side" 
                   className="h-[380px] sm:h-[450px] w-full object-contain rounded-xl"
                 />
@@ -280,13 +295,13 @@ export default function Transformations() {
                   <div className="space-y-2">
                     <p className="text-center text-xs uppercase tracking-widest text-gray-400 font-bold">Before</p>
                     <div className="relative h-72 sm:h-80 rounded-2xl overflow-hidden border border-card-border bg-[#050507] p-1 flex items-center justify-center">
-                      <img src={item.beforeImg} alt="Before" className="h-full w-full object-contain rounded-xl" />
+                      <img src={resolveMediaUrl(item.beforeImg)} alt="Before" className="h-full w-full object-contain rounded-xl" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <p className="text-center text-xs uppercase tracking-widest text-gold font-bold">After</p>
                     <div className="relative h-72 sm:h-80 rounded-2xl overflow-hidden border border-gold/30 bg-[#050507] p-1 flex items-center justify-center">
-                      <img src={item.afterImg} alt="After" className="h-full w-full object-contain rounded-xl" />
+                      <img src={resolveMediaUrl(item.afterImg)} alt="After" className="h-full w-full object-contain rounded-xl" />
                     </div>
                   </div>
                 </div>
