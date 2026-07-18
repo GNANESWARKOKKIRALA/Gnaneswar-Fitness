@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.models.database import engine, Base
@@ -57,7 +58,41 @@ app.include_router(transformations.router, prefix="/api")
 frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "out"))
 
 if os.path.exists(frontend_dir):
-    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+    # Mount Next.js build assets subfolder for direct high-performance serving
+    app.mount("/_next", StaticFiles(directory=os.path.join(frontend_dir, "_next")), name="next-assets")
+
+    @app.get("/{path:path}")
+    def serve_frontend(path: str):
+        # Prevent catching API requests
+        if path.startswith("api"):
+            return {"detail": "Not Found"}
+
+        file_path = os.path.join(frontend_dir, path)
+
+        # Serve root page
+        if not path:
+            return FileResponse(os.path.join(frontend_dir, "index.html"))
+
+        # Serve static file if it exists directly (e.g. coach.jpg, favicon.ico)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+
+        # Serve matching clean URL .html file (e.g. /login -> login.html)
+        html_path = f"{file_path}.html"
+        if os.path.isfile(html_path):
+            return FileResponse(html_path)
+
+        # Serve subdirectory index (e.g. /transformations/ -> transformations/index.html)
+        index_path = os.path.join(file_path, "index.html")
+        if os.path.isfile(index_path):
+            return FileResponse(index_path)
+
+        # Fallback to 404.html or index.html
+        fallback_404 = os.path.join(frontend_dir, "404.html")
+        if os.path.isfile(fallback_404):
+            return FileResponse(fallback_404, status_code=404)
+
+        return FileResponse(os.path.join(frontend_dir, "index.html"))
 else:
     @app.get("/")
     def read_root():
