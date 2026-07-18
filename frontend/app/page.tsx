@@ -26,8 +26,8 @@ export default function Home() {
             </div>
             
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-none text-white">
-              DEFEAT YOUR LIMITS.<br />
-              <span className="gold-gradient-text">DEFY GRAVITY.</span>
+              FORGE ELITE STRENGTH.<br />
+              <span className="gold-gradient-text">BUILD YOUR LEGACY.</span>
             </h1>
             
             <p className="text-lg sm:text-xl text-gray-300 max-w-lg leading-relaxed">
