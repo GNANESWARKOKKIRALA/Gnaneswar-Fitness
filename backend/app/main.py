@@ -63,8 +63,8 @@ if os.path.exists(os.path.join(frontend_dir, "_next")):
 
 @app.get("/{path:path}")
 def serve_frontend(path: str):
-    # Prevent catching API requests
-    if path.startswith("api"):
+    # Prevent catching API, uploads, or next asset requests
+    if path.startswith("api") or path.startswith("uploads") or path.startswith("_next"):
         return {"detail": "Not Found"}
 
     # Dynamic fallback check in case directory is not present
