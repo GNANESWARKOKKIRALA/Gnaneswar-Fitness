@@ -26,11 +26,20 @@ def get_chat_history(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Retrieve messages where sender=me & receiver=recipient or sender=recipient & receiver=me
+    # Fetch all administrator IDs
+    admin_users = db.query(User).filter(User.role == "admin").all()
+    admin_ids = [u.id for u in admin_users]
+    
+    # Unified conversation channel between a client and the admin team
+    if current_user.role == "admin":
+        client_id = recipient_id
+    else:
+        client_id = current_user.id
+        
     messages = db.query(ChatMessage).filter(
         or_(
-            and_(ChatMessage.sender_id == current_user.id, ChatMessage.receiver_id == recipient_id),
-            and_(ChatMessage.sender_id == recipient_id, ChatMessage.receiver_id == current_user.id)
+            and_(ChatMessage.sender_id == client_id, ChatMessage.receiver_id.in_(admin_ids)),
+            and_(ChatMessage.sender_id.in_(admin_ids), ChatMessage.receiver_id == client_id)
         )
     ).order_by(ChatMessage.created_at.asc()).all()
     return messages
@@ -95,11 +104,24 @@ def mark_messages_as_read(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Mark messages sent by recipient to current_user as read
-    db.query(ChatMessage).filter(
-        ChatMessage.sender_id == sender_id,
-        ChatMessage.receiver_id == current_user.id,
-        ChatMessage.is_read == False
-    ).update({ChatMessage.is_read: True}, synchronize_session=False)
+    # Fetch all administrator IDs
+    admin_users = db.query(User).filter(User.role == "admin").all()
+    admin_ids = [u.id for u in admin_users]
+    
+    if current_user.role == "admin":
+        # Mark messages sent by client to any admin as read
+        db.query(ChatMessage).filter(
+            ChatMessage.sender_id == sender_id,
+            ChatMessage.receiver_id.in_(admin_ids),
+            ChatMessage.is_read == False
+        ).update({ChatMessage.is_read: True}, synchronize_session=False)
+    else:
+        # Mark messages sent by any admin to this client as read
+        db.query(ChatMessage).filter(
+            ChatMessage.sender_id.in_(admin_ids),
+            ChatMessage.receiver_id == current_user.id,
+            ChatMessage.is_read == False
+        ).update({ChatMessage.is_read: True}, synchronize_session=False)
+        
     db.commit()
     return {"message": "Messages marked as read"}
