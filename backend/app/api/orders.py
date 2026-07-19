@@ -63,6 +63,31 @@ async def create_order(
     db.refresh(db_order)
     return db_order
 
+@router.post("/orders/simulate-success", response_model=OrderResponse)
+def simulate_order_success(
+    plan_id: int = Form(...),
+    amount: float = Form(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # Verify program exists
+    program = db.query(Program).filter(Program.id == plan_id).first()
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+
+    # Directly create an approved order to simulate instant gateway clearing
+    db_order = Order(
+        user_id=current_user.id,
+        plan_id=plan_id,
+        amount=amount,
+        screenshot_url="/uploads/simulated_gateway_success.png",
+        status="approved"
+    )
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
+    return db_order
+
 @router.get("/orders/me", response_model=List[OrderResponse])
 def get_my_orders(
     current_user: User = Depends(get_current_user),

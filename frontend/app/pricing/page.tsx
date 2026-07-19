@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
 import { apiFetch } from '@/lib/api';
-import { QrCode, UploadCloud, CheckCircle, HelpCircle, ArrowRight, Dumbbell, MessageSquare } from 'lucide-react';
+import { QrCode, UploadCloud, CheckCircle, HelpCircle, ArrowRight, Dumbbell, MessageSquare, Sparkles, Printer } from 'lucide-react';
 
 interface Program {
   id: number;
@@ -32,6 +32,11 @@ function PricingContent() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Gateway simulation states
+  const [simulationStatus, setSimulationStatus] = useState<'idle' | 'processing' | 'success' | 'failed' | 'timeout'>('idle');
+  const [simulationMessage, setSimulationMessage] = useState<string | null>(null);
+  const [simulatedTxnId, setSimulatedTxnId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadPrograms() {
@@ -68,6 +73,60 @@ function PricingContent() {
       setScreenshotPreview(URL.createObjectURL(file));
     }
   };
+
+  const handleSimulatePayment = async (status: 'success' | 'failed' | 'timeout') => {
+    if (!user) {
+      router.push('/login?redirect=pricing');
+      return;
+    }
+    if (!selectedProgram) {
+      setError("Please select a program first.");
+      return;
+    }
+
+    setSimulationStatus('processing');
+    setSimulationMessage("Establishing secure connection to UPI Gateway...");
+    setError(null);
+
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    if (status === 'timeout') {
+      setSimulationStatus('timeout');
+      setSimulationMessage("Transaction timed out. Google Pay/PhonePe PSP servers did not respond. (Code: 504)");
+      setError("Simulated Gateway Timeout: Server did not respond.");
+      return;
+    }
+
+    if (status === 'failed') {
+      setSimulationStatus('failed');
+      setSimulationMessage("Transaction declined by the customer's bank (Insufficient funds / Incorrect UPI PIN). (Code: 402)");
+      setError("Simulated Gateway Error: Transaction declined by bank.");
+      return;
+    }
+
+    // Success simulation
+    setSimulationMessage("UPI payment settled successfully! Finalizing membership tables...");
+    const formData = new FormData();
+    formData.append('plan_id', selectedProgram.id.toString());
+    formData.append('amount', selectedProgram.price.toString());
+
+    try {
+      const res = await apiFetch('/api/orders/simulate-success', {
+        method: 'POST',
+        body: formData,
+      }, token || undefined);
+      
+      const txnId = `TXN-${Math.floor(10000000 + Math.random() * 90000000)}`;
+      setSimulatedTxnId(txnId);
+      setSimulationStatus('success');
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message || "Failed to process simulated success.");
+      setSimulationStatus('failed');
+    }
+  };
+
 
   const handleSubmitPayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,32 +244,100 @@ function PricingContent() {
           {success ? (
             <div className="glass-panel p-8 rounded-3xl border border-card-border text-center space-y-6">
               <CheckCircle className="h-16 w-16 text-gold mx-auto animate-bounce" />
-              <h3 className="text-2xl font-bold text-white">Screenshot Received!</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">
-                Thank you! Your transaction screenshot was uploaded successfully. The coaching team is reviewing the transaction details.
-              </p>
               
-              <div className="pt-2">
-                <a 
-                  href={`https://wa.me/916309764875?text=Hello%20Coach%20Gnaneswar,%20I%20have%20uploaded%20my%20payment%20screenshot%20for%20order.`}
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-full transition-all duration-300 shadow-md"
-                >
-                  <MessageSquare className="h-5 w-5" />
-                  <span>Send Screenshot on WhatsApp</span>
-                </a>
-              </div>
+              {simulationStatus === 'success' ? (
+                <div className="space-y-6 text-left">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-white">Payment Verified!</h3>
+                    <p className="text-xs text-gold font-semibold mt-1 uppercase tracking-wider">Status: License Issued</p>
+                  </div>
+                  
+                  {/* Receipt Paper */}
+                  <div className="bg-[#050507] border border-card-border rounded-2xl p-6 space-y-4 text-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 bg-gold/10 border-b border-l border-card-border text-[9px] text-gold font-bold uppercase px-3 py-1">
+                      Official Receipt
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 uppercase tracking-widest">Client Email</p>
+                      <p className="font-semibold text-white">{user?.email}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-widest">Program</p>
+                        <p className="font-semibold text-white">{selectedProgram?.title}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-widest">Provider</p>
+                        <p className="font-semibold text-white">UPI Gateway</p>
+                      </div>
+                    </div>
 
-              <p className="text-gray-400 text-xs mt-2">
-                You can track the state of your order under 'Payment Status' in your dashboard.
-              </p>
-              <button 
-                onClick={() => router.push('/dashboard')}
-                className="w-full bg-transparent border border-card-border hover:border-gold text-white hover:text-gold font-bold py-3 rounded-full transition-all duration-300"
-              >
-                Go to My Dashboard
-              </button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-widest">Transaction ID</p>
+                        <p className="font-mono text-xs text-gold font-semibold uppercase">{simulatedTxnId || 'TXN-SIMULATED'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-widest">Date & Time</p>
+                        <p className="font-semibold text-white text-xs">{new Date().toLocaleString()}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-card-border pt-4 flex justify-between items-center">
+                      <span className="font-bold text-white">Amount Settled:</span>
+                      <span className="text-gold font-black text-lg">₹{selectedProgram?.price}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 pt-2">
+                    <button 
+                      onClick={() => window.print()}
+                      className="flex-1 bg-transparent border border-card-border hover:border-gold text-white hover:text-gold font-bold py-3.5 rounded-full transition-all duration-300 flex items-center justify-center space-x-2 text-xs"
+                    >
+                      <Printer className="h-4 w-4" />
+                      <span>Print Receipt</span>
+                    </button>
+                    <button 
+                      onClick={() => router.push('/dashboard?tab=ai')}
+                      className="flex-1 gold-gradient-bg text-background font-bold py-3.5 rounded-full hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 text-xs shadow-[0_0_15px_var(--gold-glow)]"
+                    >
+                      <span>Access AI Hub</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h3 className="text-2xl font-bold text-white">Screenshot Received!</h3>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    Thank you! Your transaction screenshot was uploaded successfully. The coaching team is reviewing the transaction details.
+                  </p>
+                  
+                  <div className="pt-2">
+                    <a 
+                      href={`https://wa.me/916309764875?text=Hello%20Coach%20Gnaneswar,%20I%20have%20uploaded%20my%20payment%20screenshot%20for%20order.`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-full transition-all duration-300 shadow-md"
+                    >
+                      <MessageSquare className="h-5 w-5" />
+                      <span>Send Screenshot on WhatsApp</span>
+                    </a>
+                  </div>
+
+                  <p className="text-gray-400 text-xs mt-2">
+                    You can track the state of your order under 'Payment Status' in your dashboard.
+                  </p>
+                  <button 
+                    onClick={() => router.push('/dashboard')}
+                    className="w-full bg-transparent border border-card-border hover:border-gold text-white hover:text-gold font-bold py-3 rounded-full transition-all duration-300 mt-4"
+                  >
+                    Go to My Dashboard
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <form onSubmit={handleSubmitPayment} className="glass-panel p-8 rounded-3xl border border-card-border space-y-6">
@@ -284,11 +411,67 @@ function PricingContent() {
                 </div>
               )}
 
+              {/* GATEWAY SIMULATOR TRAY */}
+              {selectedProgram && (
+                <div className="border border-gold/30 bg-gold/5 rounded-2xl p-5 space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Sparkles className="h-4 w-4 text-gold animate-pulse" />
+                    <span className="text-xs font-bold text-gold uppercase tracking-widest">Enterprise Gateway Simulator</span>
+                  </div>
+                  <p className="text-[11px] text-gray-400 leading-relaxed">
+                    Test the automatic UPI verification flow directly. Select a transaction outcome to simulate real-time routing:
+                  </p>
+                  
+                  {simulationStatus === 'processing' ? (
+                    <div className="flex flex-col items-center py-2 space-y-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gold"></div>
+                      <p className="text-[10px] text-gold font-semibold animate-pulse">{simulationMessage}</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleSimulatePayment('success')}
+                        className="bg-green-600/20 border border-green-500/50 hover:bg-green-600/40 text-green-400 text-[10px] font-bold py-2 rounded-xl transition-all duration-300"
+                      >
+                        Simulate Success
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSimulatePayment('failed')}
+                        className="bg-red-600/20 border border-red-500/50 hover:bg-red-600/40 text-red-400 text-[10px] font-bold py-2 rounded-xl transition-all duration-300"
+                      >
+                        Simulate Decline
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSimulatePayment('timeout')}
+                        className="bg-yellow-600/20 border border-yellow-500/50 hover:bg-yellow-600/40 text-yellow-400 text-[10px] font-bold py-2 rounded-xl transition-all duration-300"
+                      >
+                        Simulate Timeout
+                      </button>
+                    </div>
+                  )}
+
+                  {simulationStatus !== 'idle' && simulationStatus !== 'processing' && (
+                    <div className={`text-[10px] p-2.5 rounded-lg border ${
+                      simulationStatus === 'success' 
+                        ? 'bg-green-500/10 border-green-500/30 text-green-300' 
+                        : simulationStatus === 'failed'
+                          ? 'bg-red-500/10 border-red-500/30 text-red-300'
+                          : 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300'
+                    }`}>
+                      {simulationMessage}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Screenshot File Upload */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-300 block">3. Upload Transfer Screenshot</label>
+                <label className="text-xs font-semibold text-gray-300 block">3. Alternate Manual Method: Upload Screenshot</label>
                 
-                <div className="relative border-2 border-dashed border-card-border hover:border-gold/50 rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 bg-background/50">
+                <div className="relative border border-dashed border-card-border hover:border-gold/50 rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 bg-background/50">
                   <input 
                     type="file" 
                     accept="image/png, image/jpeg" 
@@ -325,7 +508,7 @@ function PricingContent() {
                   disabled={submitting}
                   className="w-full gold-gradient-bg text-background font-bold py-3.5 rounded-full hover:scale-102 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
-                  <span>{submitting ? 'Uploading Proof...' : 'Submit Payment Proof'}</span>
+                  <span>{submitting ? 'Uploading Proof...' : 'Submit Payment Proof (Manual review)'}</span>
                 </button>
               ) : (
                 <button
