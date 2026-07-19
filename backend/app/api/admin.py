@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
@@ -150,12 +150,21 @@ class UserUpdateRequest(BaseModel):
 @router.post("/media")
 def upload_media_file(
     file: UploadFile = File(...),
+    custom_name: Optional[str] = Form(None),
     current_admin: User = Depends(get_current_admin)
 ):
     if not os.path.exists(settings.UPLOAD_DIR):
         os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     
-    filename = os.path.basename(file.filename)
+    if custom_name and custom_name.strip():
+        filename = os.path.basename(custom_name.strip())
+        _, old_ext = os.path.splitext(file.filename)
+        _, new_ext = os.path.splitext(filename)
+        if not new_ext:
+            filename += old_ext
+    else:
+        filename = os.path.basename(file.filename)
+        
     filepath = os.path.join(settings.UPLOAD_DIR, filename)
     
     with open(filepath, "wb") as buffer:

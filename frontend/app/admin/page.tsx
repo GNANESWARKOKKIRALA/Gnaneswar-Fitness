@@ -196,6 +196,7 @@ export default function AdminDashboard() {
 
   // Media upload and rename states
   const [mediaUploadFile, setMediaUploadFile] = useState<File | null>(null);
+  const [mediaCustomName, setMediaCustomName] = useState('');
   const [mediaUploading, setMediaUploading] = useState(false);
 
   // Client Details edit states
@@ -508,6 +509,9 @@ export default function AdminDashboard() {
     setMediaUploading(true);
     const formData = new FormData();
     formData.append('file', mediaUploadFile);
+    if (mediaCustomName.trim()) {
+      formData.append('custom_name', mediaCustomName.trim());
+    }
     try {
       await apiFetch('/api/admin/media', {
         method: 'POST',
@@ -515,6 +519,7 @@ export default function AdminDashboard() {
       }, token);
       alert("File uploaded successfully!");
       setMediaUploadFile(null);
+      setMediaCustomName('');
       const fileInput = document.getElementById('media-upload-input') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
       loadAdminData();
@@ -1530,7 +1535,7 @@ export default function AdminDashboard() {
                 <h2 className="text-xl font-bold text-white">Central Media Assets</h2>
                 
                 {/* Upload Form */}
-                <form onSubmit={handleMediaUpload} className="flex items-center space-x-2 bg-card-bg/40 border border-card-border p-2 rounded-2xl">
+                <form onSubmit={handleMediaUpload} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-card-bg/40 border border-card-border p-3 rounded-2xl">
                   <input
                     type="file"
                     id="media-upload-input"
@@ -1539,12 +1544,19 @@ export default function AdminDashboard() {
                         setMediaUploadFile(e.target.files[0]);
                       }
                     }}
-                    className="text-xs text-gray-400 file:bg-gray-800 file:hover:bg-gray-700 file:text-gold file:border-0 file:rounded-xl file:px-3 file:py-1.5 file:mr-2 file:cursor-pointer"
+                    className="text-xs text-gray-400 file:bg-gray-800 file:hover:bg-gray-700 file:text-gold file:border-0 file:rounded-xl file:px-3 file:py-1.5 file:cursor-pointer"
+                  />
+                  <input 
+                    type="text"
+                    value={mediaCustomName}
+                    onChange={(e) => setMediaCustomName(e.target.value)}
+                    placeholder="Custom save name (optional)..."
+                    className="bg-background border border-card-border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none placeholder-gray-500 w-full sm:w-48"
                   />
                   <button
                     type="submit"
                     disabled={mediaUploading || !mediaUploadFile}
-                    className="px-4 py-1.5 bg-gold text-background rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center space-x-1"
+                    className="px-4 py-1.5 bg-gold text-background rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center justify-center space-x-1 shrink-0"
                   >
                     <UploadCloud className="h-3.5 w-3.5" />
                     <span>{mediaUploading ? "Uploading..." : "Upload File"}</span>

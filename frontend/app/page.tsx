@@ -17,10 +17,14 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
 
+        {/* Glow circles behind elements */}
+        <div className="absolute top-1/4 left-10 w-96 h-96 bg-gold/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-gold/5 rounded-full blur-[150px] pointer-events-none animate-rotate-slow" />
+
         {/* Content Container */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 text-left">
-            <div className="inline-flex items-center space-x-2 bg-gold/10 border border-gold/20 px-3 py-1 rounded-full text-gold text-sm font-semibold tracking-wide uppercase">
+          <div className="space-y-6 text-left animate-slide-up">
+            <div className="inline-flex items-center space-x-2 bg-gold/10 border border-gold/20 px-3 py-1 rounded-full text-gold text-sm font-semibold tracking-wide uppercase animate-pulse">
               <Zap className="h-4 w-4" />
               <span>Premium Coaching Portal</span>
             </div>
@@ -40,7 +44,7 @@ export default function Home() {
                 className="gold-gradient-bg text-background font-bold text-center px-8 py-4 rounded-full shadow-[0_0_20px_var(--gold-glow)] hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
               >
                 <span>View Elite Plans</span>
-                <ArrowRight className="h-5 w-5" />
+                <ArrowRight className="h-5 w-5 animate-pulse" />
               </Link>
               <Link 
                 href="/programs" 
@@ -52,8 +56,8 @@ export default function Home() {
           </div>
 
           {/* Hero Coach Photo Showcase */}
-          <div className="relative flex justify-center lg:justify-end">
-            <div className="relative w-80 h-96 sm:w-96 sm:h-[450px] rounded-3xl overflow-hidden shadow-2xl border border-card-border group">
+          <div className="relative flex justify-center lg:justify-end animate-float">
+            <div className="relative w-80 h-96 sm:w-96 sm:h-[450px] rounded-3xl overflow-hidden shadow-2xl border border-card-border group hover:shadow-[0_0_25px_rgba(229,169,60,0.3)] transition-all duration-500">
               <div 
                 className="absolute inset-0 bg-cover bg-center scale-105 group-hover:scale-100 transition-transform duration-700"
                 style={{ 
@@ -63,7 +67,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-transparent to-transparent" />
               
               {/* Floating Stat card */}
-              <div className="absolute bottom-6 left-6 right-6 glass-panel rounded-2xl p-4 border border-card-border">
+              <div className="absolute bottom-6 left-6 right-6 glass-panel rounded-2xl p-4 border border-card-border animate-pulse-glow">
                 <p className="text-xs uppercase tracking-wider text-gold font-bold">Head Coach</p>
                 <h4 className="text-lg font-bold text-white">Gnaneswar Kokkirala</h4>
                 <p className="text-xs text-gray-400">Certified Strength & Conditioning Specialist</p>
@@ -112,8 +116,8 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Pillar 1 */}
-            <div className="glass-panel p-8 rounded-3xl border border-card-border gold-border-glow transition-all duration-300">
-              <div className="h-12 w-12 bg-gold/10 border border-gold/20 rounded-2xl flex items-center justify-center text-gold mb-6">
+            <div className="glass-panel p-8 rounded-3xl border border-card-border hover-card-trigger">
+              <div className="h-12 w-12 bg-gold/10 border border-gold/20 rounded-2xl flex items-center justify-center text-gold mb-6 animate-pulse">
                 <Award className="h-6 w-6" />
               </div>
               <h4 className="text-xl font-bold text-white mb-2">Scientific Blueprints</h4>
@@ -123,8 +127,8 @@ export default function Home() {
             </div>
 
             {/* Pillar 2 */}
-            <div className="glass-panel p-8 rounded-3xl border border-card-border gold-border-glow transition-all duration-300">
-              <div className="h-12 w-12 bg-gold/10 border border-gold/20 rounded-2xl flex items-center justify-center text-gold mb-6">
+            <div className="glass-panel p-8 rounded-3xl border border-card-border hover-card-trigger">
+              <div className="h-12 w-12 bg-gold/10 border border-gold/20 rounded-2xl flex items-center justify-center text-gold mb-6 animate-pulse">
                 <Shield className="h-6 w-6" />
               </div>
               <h4 className="text-xl font-bold text-white mb-2">Macro-Based Dieting</h4>
@@ -134,8 +138,8 @@ export default function Home() {
             </div>
 
             {/* Pillar 3 */}
-            <div className="glass-panel p-8 rounded-3xl border border-card-border gold-border-glow transition-all duration-300">
-              <div className="h-12 w-12 bg-gold/10 border border-gold/20 rounded-2xl flex items-center justify-center text-gold mb-6">
+            <div className="glass-panel p-8 rounded-3xl border border-card-border hover-card-trigger">
+              <div className="h-12 w-12 bg-gold/10 border border-gold/20 rounded-2xl flex items-center justify-center text-gold mb-6 animate-pulse">
                 <TrendingUp className="h-6 w-6" />
               </div>
               <h4 className="text-xl font-bold text-white mb-2">Progress Logs</h4>
