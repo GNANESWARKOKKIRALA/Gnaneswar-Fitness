@@ -147,6 +147,14 @@ export default function UserDashboard() {
   const [sendingMsg, setSendingMsg] = useState(false);
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
+  // AI Chat states
+  const [chatMode, setChatMode] = useState<'coach' | 'ai'>('coach');
+  const [aiChatMessages, setAiChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string}>>([
+    { role: 'assistant', content: "Hello! I am your AI Bodybuilding & Diet Coach. Ask me any questions about exercises, calories, macros, or recovery blueprints, and let's get after it!" }
+  ]);
+  const [aiChatInput, setAiChatInput] = useState('');
+  const [aiChatLoading, setAiChatLoading] = useState(false);
+
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
@@ -367,6 +375,32 @@ export default function UserDashboard() {
       alert("Failed to send message: " + err.message);
     } finally {
       setSendingMsg(false);
+    }
+  };
+
+  const handleSendAIChat = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !aiChatInput.trim() || aiChatLoading) return;
+    
+    const userMsg = { role: 'user' as const, content: aiChatInput };
+    setAiChatMessages(prev => [...prev, userMsg]);
+    setAiChatInput('');
+    setAiChatLoading(true);
+    
+    try {
+      const data = await apiFetch('/api/ai/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          message: userMsg.content,
+          history: aiChatMessages.slice(1)
+        })
+      }, token);
+      
+      setAiChatMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+    } catch (err: any) {
+      setAiChatMessages(prev => [...prev, { role: 'assistant', content: "AI Coach: Oops! I failed to resolve that query. Please make sure the server has a valid Groq API key configured." }]);
+    } finally {
+      setAiChatLoading(false);
     }
   };
 
@@ -975,117 +1009,213 @@ export default function UserDashboard() {
             </div>
           )}
 
-          {/* Tab 4: Private Chat Room */}
+          {/* Tab 4: Private Chat Room & AI Coach */}
           {activeTab === 'chat' && (
             <div className="glass-panel rounded-3xl border border-card-border h-[600px] flex flex-col overflow-hidden">
               {/* Header */}
-              <div className="border-b border-card-border p-5 bg-[#050507] flex justify-between items-center">
+              <div className="border-b border-card-border p-5 bg-[#050507] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
                 <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 bg-gold/20 rounded-full flex items-center justify-center text-gold font-bold">
-                    {coach?.name ? coach.name.charAt(0) : 'C'}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white">{coach?.name || 'Coach Gnaneswar'}</h3>
-                    <p className="text-[10px] text-green-400 flex items-center space-x-1">
-                      <span className="h-1.5 w-1.5 bg-green-500 rounded-full inline-block animate-ping"></span>
-                      <span>Online Support</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Message List */}
-              <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-background/30">
-                {chatMessages.length === 0 ? (
-                  <div className="text-center py-20 text-gray-400 text-xs">
-                    No chat logs with coach yet. Drop a message to introduce yourself or ask a question!
-                  </div>
-                ) : (
-                  chatMessages.map((msg) => {
-                    const isMe = msg.sender_id === user?.id;
-                    return (
-                      <div 
-                        key={msg.id}
-                        className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div className={`max-w-xs sm:max-w-md p-4 rounded-2xl border text-sm space-y-1.5 ${
-                          isMe 
-                            ? 'bg-gold/10 border-gold/30 text-white rounded-br-none' 
-                            : 'bg-card-bg border-card-border text-gray-300 rounded-bl-none'
-                        }`}>
-                          {msg.content && <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>}
-                          
-                          {/* File Attachment */}
-                          {msg.file_url && (
-                            <div className="mt-1 pt-1.5 border-t border-white/10">
-                              {msg.file_type === 'image' ? (
-                                <img src={resolveMediaUrl(msg.file_url)} alt="Attachment" className="max-h-48 rounded object-cover" />
-                              ) : msg.file_type === 'voice' ? (
-                                <audio src={resolveMediaUrl(msg.file_url)} controls className="max-w-[200px] scale-90 origin-left" />
-                              ) : (
-                                <a 
-                                  href={resolveMediaUrl(msg.file_url)}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="text-xs text-gold flex items-center space-x-1.5 hover:underline"
-                                >
-                                  <Paperclip className="h-3 w-3" />
-                                  <span>View Attachment File</span>
-                                </a>
-                              )}
-                            </div>
-                          )}
-                          <p className="text-[8px] text-gray-500 text-right">{new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                        </div>
+                  {chatMode === 'coach' ? (
+                    <>
+                      <div className="h-10 w-10 bg-gold/20 rounded-full flex items-center justify-center text-gold font-bold">
+                        {coach?.name ? coach.name.charAt(0) : 'C'}
                       </div>
-                    );
-                  })
-                )}
-                <div ref={chatBottomRef} />
-              </div>
-
-              {/* Form Input */}
-              <form onSubmit={handleSendChatMessage} className="p-4 border-t border-card-border bg-[#050507] space-y-3">
-                {chatFilePreview && (
-                  <div className="relative inline-block mt-1">
-                    <img src={chatFilePreview} alt="Preview" className="h-16 w-16 object-cover rounded border border-card-border" />
-                    <button 
-                      type="button" 
-                      onClick={() => { setChatFile(null); setChatFilePreview(null); }}
-                      className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 text-[8px] hover:bg-red-600"
-                    >
-                      <XCircle className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-                <div className="flex items-center space-x-3">
-                  <label className="cursor-pointer text-gray-400 hover:text-gold transition-colors p-1.5 rounded-full hover:bg-white/5">
-                    <Paperclip className="h-5 w-5" />
-                    <input 
-                      type="file" 
-                      accept="image/*, application/pdf, audio/*" 
-                      onChange={handleChatFileChange}
-                      className="hidden" 
-                    />
-                  </label>
-                  
-                  <input 
-                    type="text" 
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    placeholder="Type message to Coach Gnaneswar..."
-                    className="flex-1 bg-background border border-card-border focus:border-gold/50 rounded-xl px-4 py-3 text-xs text-white focus:outline-none"
-                  />
-                  
+                      <div>
+                        <h3 className="text-sm font-bold text-white">{coach?.name || 'Coach Gnaneswar'}</h3>
+                        <p className="text-[10px] text-green-400 flex items-center space-x-1">
+                          <span className="h-1.5 w-1.5 bg-green-500 rounded-full inline-block animate-ping"></span>
+                          <span>Online Support</span>
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="h-10 w-10 bg-gold/20 rounded-full flex items-center justify-center text-gold font-bold">
+                        AI
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white">AI Fitness Assistant</h3>
+                        <p className="text-[10px] text-gold flex items-center space-x-1">
+                          <BrainCircuit className="h-3 w-3 animate-pulse" />
+                          <span>Always Active</span>
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {/* Chat Mode Toggle */}
+                <div className="flex bg-background border border-card-border p-1 rounded-xl shrink-0 self-start sm:self-auto">
                   <button
-                    type="submit"
-                    disabled={sendingMsg}
-                    className="gold-gradient-bg text-background p-3 rounded-xl hover:scale-105 transition-all disabled:opacity-50"
+                    onClick={() => setChatMode('coach')}
+                    className={`px-4 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                      chatMode === 'coach' ? 'bg-gold text-background shadow' : 'text-gray-400 hover:text-white'
+                    }`}
                   >
-                    <Send className="h-4 w-4" />
+                    Personal Coach
+                  </button>
+                  <button
+                    onClick={() => setChatMode('ai')}
+                    className={`px-4 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                      chatMode === 'ai' ? 'bg-gold text-background shadow' : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    AI Coach Assistant
                   </button>
                 </div>
-              </form>
+              </div>
+
+              {/* Message List & Forms based on active mode */}
+              {chatMode === 'coach' ? (
+                <>
+                  <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-background/30">
+                    {chatMessages.length === 0 ? (
+                      <div className="text-center py-20 text-gray-400 text-xs">
+                        No chat logs with coach yet. Drop a message to introduce yourself or ask a question!
+                      </div>
+                    ) : (
+                      chatMessages.map((msg) => {
+                        const isMe = msg.sender_id === user?.id;
+                        return (
+                          <div 
+                            key={msg.id}
+                            className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <div className={`max-w-xs sm:max-w-md p-4 rounded-2xl border text-sm space-y-1.5 ${
+                              isMe 
+                                ? 'bg-gold/10 border-gold/30 text-white rounded-br-none' 
+                                : 'bg-card-bg border-card-border text-gray-300 rounded-bl-none'
+                            }`}>
+                              {msg.content && <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>}
+                              
+                              {/* File Attachment */}
+                              {msg.file_url && (
+                                <div className="mt-1 pt-1.5 border-t border-white/10">
+                                  {msg.file_type === 'image' ? (
+                                    <img src={resolveMediaUrl(msg.file_url)} alt="Attachment" className="max-h-48 rounded object-cover" />
+                                  ) : msg.file_type === 'voice' ? (
+                                    <audio src={resolveMediaUrl(msg.file_url)} controls className="max-w-[200px] scale-90 origin-left" />
+                                  ) : (
+                                    <a 
+                                      href={resolveMediaUrl(msg.file_url)}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-xs text-gold flex items-center space-x-1.5 hover:underline"
+                                    >
+                                      <Paperclip className="h-3 w-3" />
+                                      <span>View Attachment File</span>
+                                    </a>
+                                  )}
+                                </div>
+                              )}
+                              <p className="text-[8px] text-gray-500 text-right">{new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                    <div ref={chatBottomRef} />
+                  </div>
+
+                  {/* Form Input */}
+                  <form onSubmit={handleSendChatMessage} className="p-4 border-t border-card-border bg-[#050507] space-y-3">
+                    {chatFilePreview && (
+                      <div className="relative inline-block mt-1">
+                        <img src={chatFilePreview} alt="Preview" className="h-16 w-16 object-cover rounded border border-card-border" />
+                        <button 
+                          type="button" 
+                          onClick={() => { setChatFile(null); setChatFilePreview(null); }}
+                          className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 text-[8px] hover:bg-red-600"
+                        >
+                          <XCircle className="h-3 w-3" />
+                        </button>
+                      </div>
+                    )}
+                    <div className="flex items-center space-x-3">
+                      <label className="cursor-pointer text-gray-400 hover:text-gold transition-colors p-1.5 rounded-full hover:bg-white/5">
+                        <Paperclip className="h-5 w-5" />
+                        <input 
+                          type="file" 
+                          accept="image/*, application/pdf, audio/*" 
+                          onChange={handleChatFileChange}
+                          className="hidden" 
+                        />
+                      </label>
+                      
+                      <input 
+                        type="text" 
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Type message to Coach Gnaneswar..."
+                        className="flex-1 bg-background border border-card-border focus:border-gold/50 rounded-xl px-4 py-3 text-xs text-white focus:outline-none"
+                      />
+                      
+                      <button
+                        type="submit"
+                        disabled={sendingMsg || (!chatInput.trim() && !chatFile)}
+                        className="gold-gradient-bg text-background px-6 py-3 rounded-xl text-xs font-bold shadow-[0_0_12px_var(--gold-glow)] hover:scale-105 transition-all duration-300 disabled:opacity-50 flex items-center justify-center space-x-1"
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                        <span>Send</span>
+                      </button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <>
+                  <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-background/30">
+                    {aiChatMessages.map((msg, index) => {
+                      const isMe = msg.role === 'user';
+                      return (
+                        <div 
+                          key={index}
+                          className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div className={`max-w-xs sm:max-w-md p-4 rounded-2xl border text-sm space-y-1.5 ${
+                            isMe 
+                              ? 'bg-gold/10 border-gold/30 text-white rounded-br-none' 
+                              : 'bg-card-bg border-card-border text-gray-300 rounded-bl-none'
+                          }`}>
+                            <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {aiChatLoading && (
+                      <div className="flex justify-start">
+                        <div className="bg-card-bg border border-card-border p-4 rounded-2xl rounded-bl-none text-gray-400 text-xs flex items-center space-x-2">
+                          <span className="h-2 w-2 bg-gold rounded-full animate-bounce"></span>
+                          <span className="h-2 w-2 bg-gold rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                          <span className="h-2 w-2 bg-gold rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                          <span>AI Coach is typing...</span>
+                        </div>
+                      </div>
+                    )}
+                    <div ref={chatBottomRef} />
+                  </div>
+
+                  {/* AI Input Form */}
+                  <form onSubmit={handleSendAIChat} className="p-4 border-t border-card-border bg-[#050507]">
+                    <div className="flex items-center space-x-3">
+                      <input 
+                        type="text" 
+                        value={aiChatInput}
+                        onChange={(e) => setAiChatInput(e.target.value)}
+                        placeholder="Ask AI Coach a question..."
+                        className="flex-1 bg-background border border-card-border focus:border-gold/50 rounded-xl px-4 py-3 text-xs text-white focus:outline-none"
+                      />
+                      <button
+                        type="submit"
+                        disabled={aiChatLoading || !aiChatInput.trim()}
+                        className="gold-gradient-bg text-background px-6 py-3 rounded-xl text-xs font-bold shadow-[0_0_12px_var(--gold-glow)] hover:scale-105 transition-all duration-300 disabled:opacity-50 flex items-center justify-center space-x-1"
+                      >
+                        <Send className="h-3.5 w-3.5" />
+                        <span>Ask AI</span>
+                      </button>
+                    </div>
+                  </form>
+                </>
+              )}
             </div>
           )}
 

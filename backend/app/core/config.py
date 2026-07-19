@@ -7,7 +7,10 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", 7))
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
-    UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "./uploads")
+    UPLOAD_DIR: str = os.getenv(
+        "UPLOAD_DIR",
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "uploads"))
+    )
     ADMIN_UPI_ID: str = os.getenv("ADMIN_UPI_ID", "coach@upi")
 
 settings = Settings()
