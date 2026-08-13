@@ -608,6 +608,19 @@ export default function AdminDashboard() {
               <LayoutDashboard className="h-4 w-4" />
               <span>Overview Dashboard</span>
             </button>
+            <button
+              onClick={() => setActiveTab('clients')}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ${
+                activeTab === 'clients'
+                  ? 'cyan-gradient-bg text-[#050505] font-extrabold shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-[#111820]'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <Users className="h-4 w-4" />
+                <span>Client Management</span>
+              </div>
+            </button>
 
             <button
               onClick={() => setActiveTab('blogs')}

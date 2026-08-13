@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Dumbbell, Apple, Clock, Layers, Flame } from 'lucide-react';
+import { Plus, Trash2, Dumbbell, Apple, Clock, Layers, Flame, X } from 'lucide-react';
 
 interface PlanBuilderProps {
   type: string; // 'workout' or 'diet'
