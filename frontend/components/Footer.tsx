@@ -61,9 +61,9 @@ export default function Footer() {
           {/* Contact Details */}
           <div>
             <h3 className="text-xs font-bold text-[#00BFFF] uppercase tracking-wider mb-4 font-display">Get In Touch</h3>
-            <p className="text-xs text-[#8B949E] mb-1.5">Email: coach@gnaneswarfit.com</p>
-            <p className="text-xs text-[#8B949E] mb-1.5">WhatsApp: +91 98765 43210</p>
-            <p className="text-xs text-[#8B949E] mb-1.5">Instagram: @gnaneswar_fit</p>
+            <p className="text-xs text-[#8B949E] mb-1.5">Email: gapbodybuilder@gmail.com</p>
+            <p className="text-xs text-[#8B949E] mb-1.5">WhatsApp: +91 6309764875</p>
+            <p className="text-xs text-[#8B949E] mb-1.5">Instagram: @gnaneswar_bb</p>
             <p className="text-xs text-[#8B949E]">Location: Hyderabad, India</p>
           </div>
         </div>

@@ -2,6 +2,6 @@
 2:I[89103,["/_next/static/chunks/0-uy0a-a-cf_i.js","/_next/static/chunks/14mrh2-p_w84d.js","/_next/static/chunks/14kxo_i7iqops.js"],"default"]
 4:I[97367,["/_next/static/chunks/0-uy0a-a-cf_i.js","/_next/static/chunks/14mrh2-p_w84d.js"],"OutletBoundary"]
 5:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"params":"$@3"}],[["$","script","script-0",{"src":"/_next/static/chunks/14kxo_i7iqops.js","async":true}]],["$","$L4",null,{"children":["$","$5",null,{"name":"Next.MetadataOutlet","children":"$@6"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"C5cxcoX4NXEJlyyTfLKno"}
+0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"params":"$@3"}],[["$","script","script-0",{"src":"/_next/static/chunks/14kxo_i7iqops.js","async":true}]],["$","$L4",null,{"children":["$","$5",null,{"name":"Next.MetadataOutlet","children":"$@6"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"nvs2ARzKXJRAsVmI9fhow"}
 3:{"slug":"master-progressive-overload-hypertrophy"}
 6:null

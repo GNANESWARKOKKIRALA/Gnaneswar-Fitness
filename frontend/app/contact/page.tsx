@@ -138,7 +138,7 @@ export default function Contact() {
               </div>
               <div>
                 <p className="text-[10px] text-[#8B949E] uppercase font-bold">Support Email</p>
-                <p className="text-white font-bold text-xs">anjaniprasad176@gmail.com</p>
+                <p className="text-white font-bold text-xs">gapbodybuilder@gmail.com</p>
               </div>
             </div>
 

@@ -13,9 +13,9 @@ DEFAULT_SETTINGS = {
     "coach_name": "Gnaneswar Kokkirala",
     "coach_title": "Certified Strength & Conditioning Specialist",
     "coach_bio": "Dedicated bodybuilding coach specializing in scientific progressive overload, macronutrient modeling, and physique transformation.",
-    "contact_email": "coach@gnaneswarfit.com",
-    "contact_phone": "+91 98765 43210",
-    "instagram_url": "https://instagram.com",
+    "contact_email": "gapbodybuilder@gmail.com",
+    "contact_phone": "+91 6309764875",
+    "instagram_url": "https://instagram.com/gnaneswar_bb",
     "youtube_url": "https://youtube.com",
     "logo_url": "/logo.png"
 }
