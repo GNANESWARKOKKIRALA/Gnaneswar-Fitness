@@ -1,226 +1,614 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Shield, Award, Zap, TrendingUp, ArrowRight, Star } from 'lucide-react';
+import { 
+  Zap, 
+  ArrowRight, 
+  Star, 
+  Dumbbell, 
+  Award, 
+  ShieldCheck, 
+  Activity, 
+  Play, 
+  Check, 
+  Send,
+  MessageSquare,
+  Flame,
+  Target,
+  Layers,
+  Clock,
+  Sparkles
+} from 'lucide-react';
+import { apiFetch, resolveMediaUrl } from '@/lib/api';
 
 export default function Home() {
+  // Transformations State
+  const [transformations, setTransformations] = useState<any[]>([]);
+  const [selectedGoal, setSelectedGoal] = useState('ALL');
+  
+  // Workouts State
+  const [selectedWorkoutCategory, setSelectedWorkoutCategory] = useState('Chest');
+
+  // Contact Form State
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactGoal, setContactGoal] = useState('Fat Loss & Conditioning');
+  const [contactMessage, setContactMessage] = useState('');
+  const [contactSubmitted, setContactSubmitted] = useState(false);
+
+  // Fetch client transformations dynamically
+  useEffect(() => {
+    const fetchTransformations = async () => {
+      try {
+        const data = await apiFetch('/api/client-transformations');
+        setTransformations(data || []);
+      } catch (err) {
+        console.error('Error loading transformations for homepage:', err);
+      }
+    };
+    fetchTransformations();
+  }, []);
+
+  const workoutCategories = ['Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Push', 'Pull'];
+
+  const workoutData: Record<string, Array<{ exercise: string; sets: string; reps: string; rest: string; difficulty: string }>> = {
+    Chest: [
+      { exercise: 'Incline Barbell Bench Press', sets: '4 Sets', reps: '6 - 8 Reps', rest: '120 sec', difficulty: 'Advanced' },
+      { exercise: 'Flat Dumbbell Press', sets: '4 Sets', reps: '8 - 10 Reps', rest: '90 sec', difficulty: 'Intermediate' },
+      { exercise: 'Cable Chest Flyes (Low to High)', sets: '3 Sets', reps: '12 - 15 Reps', rest: '60 sec', difficulty: 'All Levels' },
+      { exercise: 'Weighted Chest Dips', sets: '3 Sets', reps: '8 - 12 Reps', rest: '90 sec', difficulty: 'Advanced' },
+    ],
+    Back: [
+      { exercise: 'Barbell Bent-Over Rows', sets: '4 Sets', reps: '6 - 8 Reps', rest: '120 sec', difficulty: 'Advanced' },
+      { exercise: 'Lat Pulldown (Neutral Grip)', sets: '4 Sets', reps: '10 - 12 Reps', rest: '90 sec', difficulty: 'Intermediate' },
+      { exercise: 'Seated Cable Row (Wide Grip)', sets: '3 Sets', reps: '10 - 12 Reps', rest: '60 sec', difficulty: 'Intermediate' },
+      { exercise: 'Rack Pulls (Below Knee)', sets: '3 Sets', reps: '5 - 6 Reps', rest: '150 sec', difficulty: 'Advanced' },
+    ],
+    Shoulders: [
+      { exercise: 'Seated Overhead Dumbbell Press', sets: '4 Sets', reps: '8 - 10 Reps', rest: '90 sec', difficulty: 'Intermediate' },
+      { exercise: 'Egyptian Cable Lateral Raises', sets: '4 Sets', reps: '12 - 15 Reps', rest: '60 sec', difficulty: 'All Levels' },
+      { exercise: 'Reverse Pec Deck Rear Flyes', sets: '4 Sets', reps: '15 Reps', rest: '60 sec', difficulty: 'Intermediate' },
+      { exercise: 'Heavy Barbell Shrugs', sets: '3 Sets', reps: '10 Reps', rest: '90 sec', difficulty: 'Advanced' },
+    ],
+    Arms: [
+      { exercise: 'Ez-Bar Bicep Preacher Curls', sets: '4 Sets', reps: '10 - 12 Reps', rest: '60 sec', difficulty: 'Intermediate' },
+      { exercise: 'Tricep Rope Pushdowns', sets: '4 Sets', reps: '12 - 15 Reps', rest: '60 sec', difficulty: 'All Levels' },
+      { exercise: 'Incline Dumbbell Bicep Curls', sets: '3 Sets', reps: '10 - 12 Reps', rest: '60 sec', difficulty: 'Intermediate' },
+      { exercise: 'Skull Crushers (Lying Ez-Bar)', sets: '3 Sets', reps: '8 - 10 Reps', rest: '90 sec', difficulty: 'Advanced' },
+    ],
+    Legs: [
+      { exercise: 'Barbell High-Bar Back Squats', sets: '4 Sets', reps: '6 - 8 Reps', rest: '150 sec', difficulty: 'Advanced' },
+      { exercise: 'Romanian Deadlifts (RDL)', sets: '4 Sets', reps: '8 - 10 Reps', rest: '120 sec', difficulty: 'Advanced' },
+      { exercise: 'Leg Press (Quad-Focused)', sets: '4 Sets', reps: '10 - 12 Reps', rest: '90 sec', difficulty: 'Intermediate' },
+      { exercise: 'Standing Calf Raises', sets: '4 Sets', reps: '15 - 20 Reps', rest: '45 sec', difficulty: 'All Levels' },
+    ],
+    Push: [
+      { exercise: 'Incline Smith Machine Press', sets: '4 Sets', reps: '6 - 8 Reps', rest: '120 sec', difficulty: 'Advanced' },
+      { exercise: 'Standing Military Overhead Press', sets: '3 Sets', reps: '8 - 10 Reps', rest: '90 sec', difficulty: 'Advanced' },
+      { exercise: 'Cable Upper Chest Flyes', sets: '3 Sets', reps: '12 Reps', rest: '60 sec', difficulty: 'Intermediate' },
+      { exercise: 'Overhead Tricep Extension', sets: '4 Sets', reps: '12 - 15 Reps', rest: '60 sec', difficulty: 'Intermediate' },
+    ],
+    Pull: [
+      { exercise: 'Weighted Pull-Ups', sets: '4 Sets', reps: '6 - 8 Reps', rest: '120 sec', difficulty: 'Advanced' },
+      { exercise: 'Meadows Single-Arm Row', sets: '3 Sets', reps: '8 - 10 Reps', rest: '90 sec', difficulty: 'Intermediate' },
+      { exercise: 'Face Pulls with Rope', sets: '4 Sets', reps: '15 Reps', rest: '60 sec', difficulty: 'All Levels' },
+      { exercise: 'Hammer Dumbbell Curls', sets: '3 Sets', reps: '10 - 12 Reps', rest: '60 sec', difficulty: 'Intermediate' },
+    ],
+  };
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setContactSubmitted(true);
+    setTimeout(() => {
+      setContactName('');
+      setContactEmail('');
+      setContactPhone('');
+      setContactMessage('');
+      setContactSubmitted(false);
+    }, 4000);
+  };
+
+  const filteredTransformations = selectedGoal === 'ALL'
+    ? transformations
+    : transformations.filter(t => t.goal?.toUpperCase().includes(selectedGoal.replace(' ', '')));
+
   return (
-    <div className="relative w-full overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center py-20">
-        {/* Background Image with Dark Overlay */}
+    <div className="relative w-full overflow-hidden bg-[#050505] text-[#FFFFFF]">
+      
+      {/* 1. HERO SECTION */}
+      <section className="relative min-h-[92vh] flex items-center justify-center py-20 overflow-hidden">
+        {/* Gym Background with Dark Gradient */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 scale-105 animate-float-slow"
           style={{ 
             backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80')" 
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/85 to-[#050505]/50" />
+        
+        {/* Cyan Light Streak Overlay */}
+        <div className="cyan-light-streak" />
+        <div className="absolute top-1/4 left-10 w-96 h-96 bg-[#00BFFF]/10 rounded-full blur-[140px] pointer-events-none animate-pulse" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#008CFF]/10 rounded-full blur-[160px] pointer-events-none" />
 
-        {/* Glow circles behind elements */}
-        <div className="absolute top-1/4 left-10 w-96 h-96 bg-gold/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-gold/5 rounded-full blur-[150px] pointer-events-none animate-rotate-slow" />
-
-        {/* Content Container */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 text-left animate-slide-up">
-            <div className="inline-flex items-center space-x-2 bg-gold/10 border border-gold/20 px-3 py-1 rounded-full text-gold text-sm font-semibold tracking-wide uppercase animate-pulse">
-              <Zap className="h-4 w-4" />
-              <span>Premium Coaching Portal</span>
+        {/* Hero Content */}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7 space-y-6 text-left">
+            <div className="inline-flex items-center space-x-2 bg-[#00BFFF]/10 border border-[#00BFFF]/30 px-4 py-1.5 rounded-full text-[#00BFFF] text-xs font-extrabold tracking-widest uppercase">
+              <Zap className="h-4 w-4 text-[#00BFFF]" />
+              <span>Official Gnaneswar Fit Coaching</span>
             </div>
             
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-none text-white">
-              FORGE ELITE STRENGTH.<br />
-              <span className="gold-gradient-text">BUILD YOUR LEGACY.</span>
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black font-display tracking-tight leading-none text-white">
+              BUILD YOUR <br />
+              <span className="cyan-gradient-text">STRONGEST VERSION</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-gray-300 max-w-lg leading-relaxed">
-              Unlock elite-level physical conditioning. Experience professional, scientific bodybuilding routines, and optimized macronutrient diet structures tailored exclusively to your physique.
+            <p className="text-lg sm:text-xl text-[#E5E7EB] font-semibold max-w-xl leading-relaxed">
+              Train harder. Eat smarter. Improve every day.
+            </p>
+
+            <p className="text-xs sm:text-sm text-[#8B949E] max-w-lg leading-relaxed">
+              Evidence-backed progressive overload blueprints, macro-modeled nutrition plans, and 1-on-1 contest prep designed exclusively by Coach Gnaneswar Kokkirala.
             </p>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
               <Link 
-                href="/pricing" 
-                className="gold-gradient-bg text-background font-bold text-center px-8 py-4 rounded-full shadow-[0_0_20px_var(--gold-glow)] hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+                href="/contact" 
+                className="btn-primary text-center px-9 py-4 text-sm font-extrabold flex items-center justify-center space-x-2"
               >
-                <span>View Elite Plans</span>
-                <ArrowRight className="h-5 w-5 animate-pulse" />
+                <span>START TRAINING</span>
+                <ArrowRight className="h-4 w-4" />
               </Link>
               <Link 
-                href="/programs" 
-                className="bg-transparent border border-card-border hover:border-gold text-white hover:text-gold text-center font-bold px-8 py-4 rounded-full transition-all duration-300"
+                href="/transformations" 
+                className="btn-secondary text-center px-8 py-4 text-sm font-bold"
               >
-                Explore Programs
+                VIEW TRANSFORMATIONS
               </Link>
             </div>
           </div>
 
           {/* Hero Coach Photo Showcase */}
-          <div className="relative flex justify-center lg:justify-end animate-float">
-            <div className="relative w-80 h-96 sm:w-96 sm:h-[450px] rounded-3xl overflow-hidden shadow-2xl border border-card-border group hover:shadow-[0_0_25px_rgba(229,169,60,0.3)] transition-all duration-500">
-              <div 
-                className="absolute inset-0 bg-cover bg-center scale-105 group-hover:scale-100 transition-transform duration-700"
-                style={{ 
-                  backgroundImage: "url('/coach.jpg')" 
-                }}
+          <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
+            <div className="relative w-80 h-96 sm:w-96 sm:h-[480px] rounded-3xl overflow-hidden shadow-2xl border border-[#1C2329] group hover:border-[#00BFFF] transition-all duration-500 card-classic logo-shine">
+              <img 
+                src="/coach.jpg" 
+                alt="Coach Gnaneswar"
+                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
               
-              {/* Floating Stat card */}
-              <div className="absolute bottom-6 left-6 right-6 glass-panel rounded-2xl p-4 border border-card-border animate-pulse-glow">
-                <p className="text-xs uppercase tracking-wider text-gold font-bold">Head Coach</p>
-                <h4 className="text-lg font-bold text-white">Gnaneswar Kokkirala</h4>
-                <p className="text-xs text-gray-400">Certified Strength & Conditioning Specialist</p>
+              <div className="absolute bottom-6 left-6 right-6 glass-panel rounded-2xl p-4 border border-[#00BFFF]/30">
+                <p className="text-[10px] uppercase tracking-widest text-[#00BFFF] font-extrabold">Head Coach & Founder</p>
+                <h4 className="text-xl font-black font-display text-white">GNANESWAR KOKKIRALA</h4>
+                <p className="text-xs text-[#8B949E]">Certified Strength & Conditioning Specialist</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Trust & Stats Strip */}
-      <section className="relative bg-[#050507] border-y border-card-border py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <p className="text-3xl sm:text-5xl font-black text-white gold-gradient-text">4+</p>
-              <p className="text-xs sm:text-sm uppercase tracking-wider text-gray-400 mt-1">Years of Coaching</p>
+      {/* 2. ABOUT & STATS SECTION */}
+      <section className="relative bg-[#0B0F12] border-y border-[#1C2329] py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-[#00BFFF] font-display">About The Brand</span>
+              <h2 className="text-4xl sm:text-6xl font-black font-display text-white leading-tight">
+                ELITE COACHING FOR <span className="cyan-gradient-text">NATURAL HYPERTROPHY</span>
+              </h2>
+              <p className="text-[#8B949E] text-sm sm:text-base leading-relaxed">
+                At <strong className="text-white">Gnaneswar Fit</strong>, we eliminate guesswork from bodybuilding. Every training split, progressive loading target, and macronutrient recommendation is calculated specifically for your body type and performance goals.
+              </p>
+              <div className="grid grid-cols-2 gap-4 text-xs font-bold text-[#E5E7EB]">
+                <div className="flex items-center space-x-2 bg-[#111820] p-3 rounded-xl border border-[#1C2329]">
+                  <Check className="h-4 w-4 text-[#00BFFF]" />
+                  <span>Custom Macro Plans</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-[#111820] p-3 rounded-xl border border-[#1C2329]">
+                  <Check className="h-4 w-4 text-[#00BFFF]" />
+                  <span>Logbook Progress Tracking</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-[#111820] p-3 rounded-xl border border-[#1C2329]">
+                  <Check className="h-4 w-4 text-[#00BFFF]" />
+                  <span>Form Check Reviews</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-[#111820] p-3 rounded-xl border border-[#1C2329]">
+                  <Check className="h-4 w-4 text-[#00BFFF]" />
+                  <span>Direct WhatsApp Access</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-3xl sm:text-5xl font-black text-white gold-gradient-text">20+</p>
-              <p className="text-xs sm:text-sm uppercase tracking-wider text-gray-400 mt-1">Active Clients</p>
-            </div>
-            <div>
-              <p className="text-3xl sm:text-5xl font-black text-white gold-gradient-text">98%</p>
-              <p className="text-xs sm:text-sm uppercase tracking-wider text-gray-400 mt-1">Success Rate</p>
-            </div>
-            <div>
-              <p className="text-3xl sm:text-5xl font-black text-white gold-gradient-text">10+</p>
-              <p className="text-xs sm:text-sm uppercase tracking-wider text-gray-400 mt-1">Pro Transformations</p>
+
+            {/* Stat Counters */}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="card-classic p-8 text-center space-y-2">
+                <p className="text-4xl sm:text-6xl font-black font-display cyan-gradient-text">20+</p>
+                <p className="text-xs font-bold text-white uppercase tracking-wider">Client Transformations</p>
+                <p className="text-[11px] text-[#8B949E]">Verified fat loss & hypertrophy results</p>
+              </div>
+
+              <div className="card-classic p-8 text-center space-y-2">
+                <p className="text-4xl sm:text-6xl font-black font-display cyan-gradient-text">5+</p>
+                <p className="text-xs font-bold text-white uppercase tracking-wider">Years Experience</p>
+                <p className="text-[11px] text-[#8B949E]">Natural contest prep & strength</p>
+              </div>
+
+              <div className="card-classic p-8 text-center space-y-2">
+                <p className="text-4xl sm:text-6xl font-black font-display cyan-gradient-text">100%</p>
+                <p className="text-xs font-bold text-white uppercase tracking-wider">Personalized Plans</p>
+                <p className="text-[11px] text-[#8B949E]">Zero cookie-cutter routines</p>
+              </div>
+
+              <div className="card-classic p-8 text-center space-y-2">
+                <p className="text-4xl sm:text-6xl font-black font-display cyan-gradient-text">24/7</p>
+                <p className="text-xs font-bold text-white uppercase tracking-wider">Fitness Guidance</p>
+                <p className="text-[11px] text-[#8B949E]">Continuous support & messaging</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-24 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-xs uppercase tracking-widest text-gold font-bold">Why Gnaneswar_Fit</h2>
-            <h3 className="text-3xl sm:text-5xl font-extrabold text-white mt-2">
-              Our Core Coaching Pillars
-            </h3>
-            <p className="text-gray-400 mt-4">
-              We combine scientific coaching principles with state-of-the-art support systems to bring you the best bodybuilding journey.
+      {/* 3. TRANSFORMATIONS SECTION */}
+      <section className="py-24 bg-[#050505] relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#00BFFF] font-display">Real Client Results</span>
+            <h2 className="text-4xl sm:text-6xl font-black font-display text-white uppercase">
+              TRANSFORMATION <span className="cyan-gradient-text">SHOWCASE</span>
+            </h2>
+            <p className="text-[#8B949E] text-sm">
+              Explore documented before and after physique shifts built with dedicated progressive overload.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Pillar 1 */}
-            <div className="glass-panel p-8 rounded-3xl border border-card-border hover-card-trigger">
-              <div className="h-12 w-12 bg-gold/10 border border-gold/20 rounded-2xl flex items-center justify-center text-gold mb-6 animate-pulse">
-                <Award className="h-6 w-6" />
-              </div>
-              <h4 className="text-xl font-bold text-white mb-2">Scientific Blueprints</h4>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                No guesswork. We program training blocks with precise parameters: sets, reps, load ranges, RPE targets, and recovery rules tailored for your goals.
-              </p>
-            </div>
+          {/* Goal Filter Pills */}
+          <div className="flex flex-wrap gap-2 justify-center">
+            {['ALL', 'MUSCLE GAIN', 'FAT LOSS', 'TRANSFORMATION'].map((goal) => (
+              <button
+                key={goal}
+                onClick={() => setSelectedGoal(goal)}
+                className={`px-5 py-2 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all duration-300 ${
+                  selectedGoal === goal
+                    ? 'cyan-gradient-bg text-[#050505] shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                    : 'border border-[#1C2329] text-gray-300 hover:border-[#00BFFF] hover:text-white bg-[#0B0F12]'
+                }`}
+              >
+                {goal}
+              </button>
+            ))}
+          </div>
 
-            {/* Pillar 2 */}
-            <div className="glass-panel p-8 rounded-3xl border border-card-border hover-card-trigger">
-              <div className="h-12 w-12 bg-gold/10 border border-gold/20 rounded-2xl flex items-center justify-center text-gold mb-6 animate-pulse">
-                <Shield className="h-6 w-6" />
+          {/* Transformations Grid */}
+          {filteredTransformations.length === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Fallback Static Cards */}
+              <div className="card-classic p-6 space-y-6">
+                <div className="grid grid-cols-2 gap-3 h-64 overflow-hidden rounded-2xl bg-black">
+                  <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=400&q=80" alt="Before" className="h-full w-full object-cover" />
+                  <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80" alt="After" className="h-full w-full object-cover" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-lg font-bold text-white">Alex Carter</h4>
+                    <span className="text-[10px] px-3 py-1 bg-[#00BFFF]/20 text-[#00BFFF] font-extrabold rounded-full uppercase">12 Weeks • Fat Loss</span>
+                  </div>
+                  <p className="text-xs text-[#8B949E] leading-relaxed">
+                    Dropped 14kg of body fat while increasing squat and deadlift maxes through structured macro cycling.
+                  </p>
+                </div>
               </div>
-              <h4 className="text-xl font-bold text-white mb-2">Macro-Based Dieting</h4>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Flexible and strict plans depending on your preference. Complete breakdowns of daily proteins, carbs, fats, calories, and supplementation strategies.
-              </p>
-            </div>
 
-            {/* Pillar 3 */}
-            <div className="glass-panel p-8 rounded-3xl border border-card-border hover-card-trigger">
-              <div className="h-12 w-12 bg-gold/10 border border-gold/20 rounded-2xl flex items-center justify-center text-gold mb-6 animate-pulse">
-                <TrendingUp className="h-6 w-6" />
+              <div className="card-classic p-6 space-y-6">
+                <div className="grid grid-cols-2 gap-3 h-64 overflow-hidden rounded-2xl bg-black">
+                  <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80" alt="Before" className="h-full w-full object-cover" />
+                  <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80" alt="After" className="h-full w-full object-cover" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-lg font-bold text-white">Vikram Rao</h4>
+                    <span className="text-[10px] px-3 py-1 bg-[#00BFFF]/20 text-[#00BFFF] font-extrabold rounded-full uppercase">16 Weeks • Muscle Gain</span>
+                  </div>
+                  <p className="text-xs text-[#8B949E] leading-relaxed">
+                    Packed on 7kg of lean muscle mass during a controlled lean bulking split with zero fat spillover.
+                  </p>
+                </div>
               </div>
-              <h4 className="text-xl font-bold text-white mb-2">Progress Logs</h4>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Track your scale weight, body measurements, and photo logs over time to visualize progress and allow the coach to make data-backed adjustments.
-              </p>
             </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredTransformations.map((item) => (
+                <div key={item.id} className="card-classic p-6 space-y-4">
+                  <div className="grid grid-cols-2 gap-2 h-56 overflow-hidden rounded-xl bg-black">
+                    <img src={resolveMediaUrl(item.before_img)} alt="Before" className="h-full w-full object-cover" />
+                    <img src={resolveMediaUrl(item.after_img)} alt="After" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-base font-bold text-white">{item.client_name}</h4>
+                      <span className="text-[9px] px-2.5 py-0.5 bg-[#00BFFF]/20 text-[#00BFFF] font-extrabold rounded-full uppercase">
+                        {item.duration || '12 Weeks'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#8B949E] line-clamp-2">{item.story}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="text-center">
+            <Link
+              href="/transformations"
+              className="inline-flex items-center space-x-2 text-xs font-extrabold text-[#00BFFF] hover:text-white transition-colors uppercase tracking-wider"
+            >
+              <span>View Full Transformation & Video Gallery</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Featured Transformations Section */}
-      <section className="py-24 bg-[#050507] border-t border-card-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-16">
+      {/* 4. WORKOUT BLUEPRINTS SECTION */}
+      <section id="workouts" className="py-24 bg-[#0B0F12] border-y border-[#1C2329] relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#00BFFF] font-display">Training Routines</span>
+            <h2 className="text-4xl sm:text-6xl font-black font-display text-white uppercase">
+              PROFESSIONAL <span className="cyan-gradient-text">WORKOUT BLUEPRINTS</span>
+            </h2>
+            <p className="text-[#8B949E] text-sm">
+              Structured progressive overload splits designed for hypertrophy, muscle symmetry, and raw strength.
+            </p>
+          </div>
+
+          {/* Workout Categories Navigation */}
+          <div className="flex flex-wrap gap-2 justify-center">
+            {workoutCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedWorkoutCategory(cat)}
+                className={`px-5 py-2.5 rounded-full text-xs font-extrabold uppercase tracking-wider transition-all duration-300 ${
+                  selectedWorkoutCategory === cat
+                    ? 'cyan-gradient-bg text-[#050505] shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                    : 'border border-[#1C2329] text-gray-300 hover:border-[#00BFFF] hover:text-white bg-[#111820]'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Exercises Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {workoutData[selectedWorkoutCategory]?.map((item, idx) => (
+              <div key={idx} className="card-classic p-6 space-y-4 flex flex-col justify-between">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-[#00BFFF] font-extrabold uppercase tracking-wider">{selectedWorkoutCategory} Split</span>
+                    <h3 className="text-lg font-bold text-white">{item.exercise}</h3>
+                  </div>
+                  <span className="text-[10px] px-3 py-1 bg-[#00BFFF]/10 border border-[#00BFFF]/30 text-[#00BFFF] rounded-full font-bold">
+                    {item.difficulty}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 pt-2 border-t border-[#1C2329] text-xs">
+                  <div className="flex items-center space-x-2">
+                    <Layers className="h-4 w-4 text-[#00BFFF]" />
+                    <div>
+                      <p className="text-[9px] text-[#8B949E] uppercase font-semibold">Volume</p>
+                      <p className="font-bold text-white">{item.sets}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Target className="h-4 w-4 text-[#00BFFF]" />
+                    <div>
+                      <p className="text-[9px] text-[#8B949E] uppercase font-semibold">Rep Range</p>
+                      <p className="font-bold text-white">{item.reps}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Clock className="h-4 w-4 text-[#00BFFF]" />
+                    <div>
+                      <p className="text-[9px] text-[#8B949E] uppercase font-semibold">Rest Time</p>
+                      <p className="font-bold text-white">{item.rest}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. FITNESS MAGAZINE BLOG PREVIEW */}
+      <section className="py-24 bg-[#050505]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between">
             <div>
-              <h2 className="text-xs uppercase tracking-widest text-gold font-bold">Real Results</h2>
-              <h3 className="text-3xl sm:text-5xl font-extrabold text-white mt-2">Gravity-Defying Shifts</h3>
+              <span className="text-xs font-extrabold uppercase tracking-widest text-[#00BFFF] font-display">Fitness Science</span>
+              <h2 className="text-4xl sm:text-6xl font-black font-display text-white mt-1 uppercase">
+                THE BODYBUILDING <span className="cyan-gradient-text">MAGAZINE</span>
+              </h2>
             </div>
-            <Link href="/transformations" className="text-gold hover:text-white transition-colors font-bold mt-4 md:mt-0 flex items-center space-x-2">
-              <span>View transformation gallery</span>
+            <Link href="/blog" className="text-xs font-extrabold text-[#00BFFF] hover:text-white transition-colors mt-4 md:mt-0 flex items-center space-x-1 uppercase tracking-wider">
+              <span>View All Articles</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="glass-panel rounded-3xl overflow-hidden border border-card-border flex flex-col sm:flex-row h-full">
-              <div className="w-full sm:w-1/2 h-64 sm:h-auto relative bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=400&q=80')" }}>
-                <span className="absolute top-4 left-4 bg-gold text-background text-xs font-bold px-3 py-1 rounded-full uppercase">12 Weeks Fat Loss</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <article className="card-classic overflow-hidden flex flex-col group">
+              <div className="h-48 bg-black overflow-hidden relative">
+                <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&q=80" alt="Blog" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <span className="absolute top-3 left-3 bg-[#00BFFF] text-[#050505] text-[10px] font-black uppercase px-3 py-1 rounded-full">Hypertrophy</span>
               </div>
-              <div className="w-full sm:w-1/2 p-8 flex flex-col justify-center space-y-4">
-                <div className="flex text-gold">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
+              <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-white group-hover:text-[#00BFFF] transition-colors line-clamp-2">
+                    Mastering Progressive Overload for Maximum Muscle Growth
+                  </h3>
+                  <p className="text-xs text-[#8B949E] line-clamp-3 leading-relaxed">
+                    Learn how to structure load increases, volume accumulation, and deload blocks to build natural muscle consistently.
+                  </p>
                 </div>
-                <blockquote className="text-gray-300 text-sm italic leading-relaxed">
-                  "The nutrition templates and weekly adjustments were perfect. I shredded 15kg without crashing my metabolism or strength levels."
-                </blockquote>
-                <div>
-                  <h4 className="text-white font-bold">Alex Carter</h4>
-                  <p className="text-xs text-gray-500">Business Analyst</p>
-                </div>
+                <Link href="/blog" className="text-xs font-bold text-[#00BFFF] inline-flex items-center space-x-1 pt-2 border-t border-[#1C2329]">
+                  <span>Read Full Article</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
-            </div>
+            </article>
 
-            <div className="glass-panel rounded-3xl overflow-hidden border border-card-border flex flex-col sm:flex-row h-full">
-              <div className="w-full sm:w-1/2 h-64 sm:h-auto relative bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80')" }}>
-                <span className="absolute top-4 left-4 bg-gold text-background text-xs font-bold px-3 py-1 rounded-full uppercase">Hypertrophy Goal</span>
+            <article className="card-classic overflow-hidden flex flex-col group">
+              <div className="h-48 bg-black overflow-hidden relative">
+                <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80" alt="Blog" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <span className="absolute top-3 left-3 bg-[#00BFFF] text-[#050505] text-[10px] font-black uppercase px-3 py-1 rounded-full">Nutrition</span>
               </div>
-              <div className="w-full sm:w-1/2 p-8 flex flex-col justify-center space-y-4">
-                <div className="flex text-gold">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
+              <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-white group-hover:text-[#00BFFF] transition-colors line-clamp-2">
+                    The Science of Caloric Deficits & Protein Distribution
+                  </h3>
+                  <p className="text-xs text-[#8B949E] line-clamp-3 leading-relaxed">
+                    Preserve muscle tissue while dropping stubborn fat. Macro ratios and timing models for lean conditioning.
+                  </p>
                 </div>
-                <blockquote className="text-gray-300 text-sm italic leading-relaxed">
-                  "I was stuck at the same bodyweight for years. The structured progressive overload strategy helped me break plateaus in weeks."
-                </blockquote>
-                <div>
-                  <h4 className="text-white font-bold">Sarah Jenkins</h4>
-                  <p className="text-xs text-gray-500">Full-Stack Engineer</p>
-                </div>
+                <Link href="/blog" className="text-xs font-bold text-[#00BFFF] inline-flex items-center space-x-1 pt-2 border-t border-[#1C2329]">
+                  <span>Read Full Article</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
-            </div>
+            </article>
+
+            <article className="card-classic overflow-hidden flex flex-col group">
+              <div className="h-48 bg-black overflow-hidden relative">
+                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80" alt="Blog" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <span className="absolute top-3 left-3 bg-[#00BFFF] text-[#050505] text-[10px] font-black uppercase px-3 py-1 rounded-full">Recovery</span>
+              </div>
+              <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-white group-hover:text-[#00BFFF] transition-colors line-clamp-2">
+                    Sleep Architecture & Nervous System Recovery
+                  </h3>
+                  <p className="text-xs text-[#8B949E] line-clamp-3 leading-relaxed">
+                    Why CNS fatigue dictates your strength gains and how optimization protocols accelerate progress.
+                  </p>
+                </div>
+                <Link href="/blog" className="text-xs font-bold text-[#00BFFF] inline-flex items-center space-x-1 pt-2 border-t border-[#1C2329]">
+                  <span>Read Full Article</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </article>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-background border-t border-card-border relative">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white">
-            Ready to Build Your Elite Physique?
-          </h2>
-          <p className="text-gray-300 text-lg max-w-xl mx-auto leading-relaxed">
-            Stop guessing, start lifting. Lock in your customized training program, receive complete diet macro models, and start logging your progress today.
-          </p>
-          <div className="flex justify-center">
-            <Link 
-              href="/pricing" 
-              className="gold-gradient-bg text-background font-black text-center px-10 py-5 rounded-full shadow-[0_0_25px_var(--gold-glow)] hover:scale-105 transition-all duration-300 text-lg"
-            >
-              Get Started Now
-            </Link>
+      {/* 6. CONTACT & CTA SECTION */}
+      <section className="py-24 bg-[#0B0F12] border-t border-[#1C2329] relative">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 text-center">
+          <div className="space-y-3">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-[#00BFFF] font-display">Start Your Journey</span>
+            <h2 className="text-4xl sm:text-6xl font-black font-display text-white uppercase">
+              READY TO <span className="cyan-gradient-text">TRANSFORM?</span>
+            </h2>
+            <p className="text-[#8B949E] text-base max-w-xl mx-auto">
+              Start your fitness journey with Coach Gnaneswar Fit. Receive custom workout blueprints, diet plans, and continuous accountability.
+            </p>
+          </div>
+
+          <div className="card-classic p-8 sm:p-10 text-left border border-[#00BFFF]/30 shadow-2xl">
+            {contactSubmitted ? (
+              <div className="text-center py-12 space-y-4">
+                <div className="h-14 w-14 rounded-full bg-[#00BFFF]/20 border border-[#00BFFF] flex items-center justify-center text-[#00BFFF] mx-auto">
+                  <Check className="h-8 w-8" />
+                </div>
+                <h3 className="text-2xl font-black font-display text-white">APPLICATION RECEIVED!</h3>
+                <p className="text-xs text-[#8B949E]">Coach Gnaneswar will contact you on WhatsApp / Email within 24 hours.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleContactSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-300">Your Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={contactName}
+                      onChange={(e) => setContactName(e.target.value)}
+                      placeholder="e.g. Alex Johnson"
+                      className="w-full bg-[#050505] border border-[#1C2329] focus:border-[#00BFFF] rounded-xl px-4 py-3 text-xs text-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-300">Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                      placeholder="alex@example.com"
+                      className="w-full bg-[#050505] border border-[#1C2329] focus:border-[#00BFFF] rounded-xl px-4 py-3 text-xs text-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-300">Phone Number / WhatsApp *</label>
+                    <input
+                      type="tel"
+                      required
+                      value={contactPhone}
+                      onChange={(e) => setContactPhone(e.target.value)}
+                      placeholder="+91 98765 43210"
+                      className="w-full bg-[#050505] border border-[#1C2329] focus:border-[#00BFFF] rounded-xl px-4 py-3 text-xs text-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-300">Primary Goal</label>
+                    <select
+                      value={contactGoal}
+                      onChange={(e) => setContactGoal(e.target.value)}
+                      className="w-full bg-[#050505] border border-[#1C2329] focus:border-[#00BFFF] rounded-xl px-4 py-3 text-xs text-white focus:outline-none"
+                    >
+                      <option value="Fat Loss & Conditioning">Fat Loss & Conditioning</option>
+                      <option value="Muscle Hypertrophy">Muscle Hypertrophy</option>
+                      <option value="Strength & Powerlifting">Strength & Powerlifting</option>
+                      <option value="Contest Preparation">Contest Preparation</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-300">Tell Us About Your Fitness Background</label>
+                  <textarea
+                    rows={3}
+                    value={contactMessage}
+                    onChange={(e) => setContactMessage(e.target.value)}
+                    placeholder="Mention current weight, training history, and goals..."
+                    className="w-full bg-[#050505] border border-[#1C2329] focus:border-[#00BFFF] rounded-xl p-4 text-xs text-white focus:outline-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full btn-primary py-4 text-sm font-extrabold flex items-center justify-center space-x-2 shadow-[0_0_20px_rgba(0,191,255,0.4)]"
+                >
+                  <Send className="h-4 w-4" />
+                  <span>START MY TRANSFORMATION</span>
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </section>

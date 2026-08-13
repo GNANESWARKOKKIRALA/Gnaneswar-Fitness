@@ -1,126 +1,209 @@
 @import "tailwindcss";
 
 :root {
-  --background: #08080a;
-  --foreground: #f3f4f6;
-  --card-bg: #111115;
-  --card-border: rgba(229, 169, 60, 0.22);
-  --gold: #e5a93c;
-  --gold-hover: #c58f2c;
-  --gold-glow: rgba(229, 169, 60, 0.18);
+  --background: #050505;
+  --bg-secondary: #0B0F12;
+  --foreground: #FFFFFF;
+  --card-bg: #111820;
+  --card-border: #1C2329;
+  --cyan: #00BFFF;
+  --cyan-secondary: #008CFF;
+  --cyan-glow: rgba(0, 191, 255, 0.25);
+  --silver: #E5E7EB;
+  --text-muted: #8B949E;
 }
 
 @theme {
   --color-background: var(--background);
+  --color-bg-secondary: var(--bg-secondary);
   --color-foreground: var(--foreground);
   --color-card-bg: var(--card-bg);
   --color-card-border: var(--card-border);
-  --color-gold: var(--gold);
-  --color-gold-hover: var(--gold-hover);
-  --color-gold-glow: var(--gold-glow);
+  --color-cyan: var(--cyan);
+  --color-cyan-secondary: var(--cyan-secondary);
+  --color-cyan-glow: var(--cyan-glow);
+  --color-silver: var(--silver);
+  --color-text-muted: var(--text-muted);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-inter), 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
-/* Glassmorphism utility */
+/* Heading Typography */
+.font-display {
+  font-family: var(--font-bebas), var(--font-oswald), 'Bebas Neue', sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Glassmorphism & Panel utilities */
 .glass-panel {
-  background: rgba(18, 18, 22, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(17, 24, 32, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--card-border);
 }
 
-.gold-gradient-text {
-  background: linear-gradient(135deg, #ffe082 0%, #e5a93c 50%, #b27a1a 100%);
+/* Text Gradients */
+.cyan-gradient-text {
+  background: linear-gradient(135deg, #66E0FF 0%, #00BFFF 50%, #008CFF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.gold-gradient-bg {
-  background: linear-gradient(135deg, #ffe082 0%, #e5a93c 100%);
+.cyan-gradient-bg {
+  background: linear-gradient(135deg, #00BFFF 0%, #008CFF 100%);
 }
 
-.gold-border-glow:hover {
-  border-color: var(--gold);
-  box-shadow: 0 0 15px var(--gold-glow);
+.cyan-border-glow {
+  border-color: var(--cyan);
+  box-shadow: 0 0 20px var(--cyan-glow);
 }
 
-/* Custom scrollbar */
+/* Primary Button Styling */
+.btn-primary {
+  background: linear-gradient(135deg, #00BFFF 0%, #008CFF 100%);
+  color: #050505;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 9999px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 25px rgba(0, 191, 255, 0.6);
+}
+
+/* Secondary Button Styling */
+.btn-secondary {
+  background: #0B0F12;
+  color: #FFFFFF;
+  border: 1px solid var(--card-border);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #08080a;
+  background: #050505;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1f1f26;
+  background: #1C2329;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold);
+  background: var(--cyan);
 }
 
-/* Custom Premium CSS Animations */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+/* Athletic Bodybuilding CSS Animations */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 10px rgba(229, 169, 60, 0.15); border-color: rgba(229, 169, 60, 0.22); }
-  50% { box-shadow: 0 0 25px rgba(229, 169, 60, 0.4); border-color: rgba(229, 169, 60, 0.6); }
+@keyframes cyanPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(0, 191, 255, 0.2); border-color: rgba(0, 191, 255, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(0, 191, 255, 0.6); border-color: rgba(0, 191, 255, 0.8); }
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes lightStreak {
+  0% { transform: translateX(-100%) rotate(45deg); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: translateX(200%) rotate(45deg); opacity: 0; }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes logoShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
 }
 
-@keyframes rotateSlow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.animate-float-slow {
+  animation: floatSlow 5s ease-in-out infinite;
 }
 
-.animate-float {
-  animation: float 4s ease-in-out infinite;
+.animate-cyan-pulse {
+  animation: cyanPulse 3s ease-in-out infinite;
 }
 
-.animate-pulse-glow {
-  animation: pulseGlow 3s ease-in-out infinite;
+.cyan-light-streak {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.animate-slide-up {
-  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.cyan-light-streak::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(0, 191, 255, 0.08) 50%,
+    transparent 55%
+  );
+  animation: lightStreak 8s ease-in-out infinite;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
+.logo-shine {
+  position: relative;
+  overflow: hidden;
 }
 
-.animate-rotate-slow {
-  animation: rotateSlow 25s linear infinite;
+.logo-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.4), transparent);
+  transform: translateX(-100%);
 }
 
-.hover-card-trigger {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+.logo-shine:hover::after {
+  animation: logoShine 0.8s ease-in-out;
 }
 
-.hover-card-trigger:hover {
-  transform: translateY(-4px) scale(1.01);
-  border-color: var(--gold);
-  box-shadow: 0 12px 30px rgba(229, 169, 60, 0.18);
+/* Card Lift Hover Animation */
+.card-classic {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.card-classic:hover {
+  transform: translateY(-6px);
+  border-color: var(--cyan);
+  box-shadow: 0 12px 35px rgba(0, 191, 255, 0.2);
+}

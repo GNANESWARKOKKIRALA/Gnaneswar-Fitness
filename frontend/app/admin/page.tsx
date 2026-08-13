@@ -573,18 +573,18 @@ export default function AdminDashboard() {
       )}
 
       {/* Admin Sidebar Navigation */}
-      <aside className="w-full md:w-72 bg-[#0c0d12] border-b md:border-b-0 md:border-r border-card-border/80 p-6 flex flex-col justify-between flex-shrink-0">
+      <aside className="w-full md:w-72 bg-[#0B0F12] border-b md:border-b-0 md:border-r border-[#1C2329] p-6 flex flex-col justify-between flex-shrink-0">
         <div className="space-y-8">
           {/* Header Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-xl overflow-hidden border border-gold/40 shadow-[0_0_15px_rgba(229,169,60,0.3)]">
+          <div className="flex items-center space-x-3 logo-shine">
+            <div className="h-10 w-10 rounded-xl overflow-hidden border border-[#00BFFF]/40 shadow-[0_0_15px_rgba(0,191,255,0.3)] bg-[#050505]">
               <img src="/logo.png?v=2" alt="Logo" className="h-full w-full object-cover" />
             </div>
             <div>
-              <h2 className="text-lg font-black tracking-wider text-white uppercase">
-                Gnaneswar<span className="gold-gradient-text">FIT</span>
+              <h2 className="text-lg font-black font-display tracking-wider text-white uppercase">
+                Gnaneswar<span className="cyan-gradient-text">FIT</span>
               </h2>
-              <span className="text-[10px] uppercase font-bold text-gold flex items-center space-x-1">
+              <span className="text-[10px] uppercase font-extrabold text-[#00BFFF] flex items-center space-x-1">
                 <ShieldCheck className="h-3 w-3" />
                 <span>Admin Management CMS</span>
               </span>
@@ -597,8 +597,8 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('overview')}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-300 ${
                 activeTab === 'overview'
-                  ? 'bg-gold text-black shadow-[0_0_15px_rgba(229,169,60,0.3)]'
-                  : 'text-gray-400 hover:text-white hover:bg-card-bg'
+                  ? 'cyan-gradient-bg text-[#050505] font-extrabold shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-[#111820]'
               }`}
             >
               <LayoutDashboard className="h-4 w-4" />
@@ -609,15 +609,15 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('blogs')}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ${
                 activeTab === 'blogs'
-                  ? 'bg-gold text-black shadow-[0_0_15px_rgba(229,169,60,0.3)]'
-                  : 'text-gray-400 hover:text-white hover:bg-card-bg'
+                  ? 'cyan-gradient-bg text-[#050505] font-extrabold shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-[#111820]'
               }`}
             >
               <div className="flex items-center space-x-3">
                 <FileText className="h-4 w-4" />
                 <span>Blog Management</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/20 text-gold font-bold">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${activeTab === 'blogs' ? 'bg-[#050505]/20 text-[#050505]' : 'bg-[#00BFFF]/20 text-[#00BFFF]'}`}>
                 {blogs.length}
               </span>
             </button>
@@ -626,15 +626,15 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('client-transformations')}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ${
                 activeTab === 'client-transformations'
-                  ? 'bg-gold text-black shadow-[0_0_15px_rgba(229,169,60,0.3)]'
-                  : 'text-gray-400 hover:text-white hover:bg-card-bg'
+                  ? 'cyan-gradient-bg text-[#050505] font-extrabold shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-[#111820]'
               }`}
             >
               <div className="flex items-center space-x-3">
                 <Users className="h-4 w-4" />
                 <span>Client Transformations</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/20 text-gold font-bold">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${activeTab === 'client-transformations' ? 'bg-[#050505]/20 text-[#050505]' : 'bg-[#00BFFF]/20 text-[#00BFFF]'}`}>
                 {clientTrans.length}
               </span>
             </button>
@@ -643,15 +643,15 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('my-transformations')}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ${
                 activeTab === 'my-transformations'
-                  ? 'bg-gold text-black shadow-[0_0_15px_rgba(229,169,60,0.3)]'
-                  : 'text-gray-400 hover:text-white hover:bg-card-bg'
+                  ? 'cyan-gradient-bg text-[#050505] font-extrabold shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-[#111820]'
               }`}
             >
               <div className="flex items-center space-x-3">
                 <Sparkles className="h-4 w-4" />
                 <span>My Transformations</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/20 text-gold font-bold">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${activeTab === 'my-transformations' ? 'bg-[#050505]/20 text-[#050505]' : 'bg-[#00BFFF]/20 text-[#00BFFF]'}`}>
                 {myTrans.length}
               </span>
             </button>
@@ -660,15 +660,15 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('videos')}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ${
                 activeTab === 'videos'
-                  ? 'bg-gold text-black shadow-[0_0_15px_rgba(229,169,60,0.3)]'
-                  : 'text-gray-400 hover:text-white hover:bg-card-bg'
+                  ? 'cyan-gradient-bg text-[#050505] font-extrabold shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-[#111820]'
               }`}
             >
               <div className="flex items-center space-x-3">
                 <Film className="h-4 w-4" />
                 <span>Transformation Videos</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/20 text-gold font-bold">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${activeTab === 'videos' ? 'bg-[#050505]/20 text-[#050505]' : 'bg-[#00BFFF]/20 text-[#00BFFF]'}`}>
                 {videos.length}
               </span>
             </button>
@@ -677,15 +677,15 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('media')}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ${
                 activeTab === 'media'
-                  ? 'bg-gold text-black shadow-[0_0_15px_rgba(229,169,60,0.3)]'
-                  : 'text-gray-400 hover:text-white hover:bg-card-bg'
+                  ? 'cyan-gradient-bg text-[#050505] font-extrabold shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-[#111820]'
               }`}
             >
               <div className="flex items-center space-x-3">
                 <ImageIcon className="h-4 w-4" />
                 <span>Media Library</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/20 text-gold font-bold">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${activeTab === 'media' ? 'bg-[#050505]/20 text-[#050505]' : 'bg-[#00BFFF]/20 text-[#00BFFF]'}`}>
                 {mediaFiles.length}
               </span>
             </button>
@@ -701,15 +701,15 @@ export default function AdminDashboard() {
               }}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ${
                 activeTab === 'chat'
-                  ? 'bg-gold text-black shadow-[0_0_15px_rgba(229,169,60,0.3)]'
-                  : 'text-gray-400 hover:text-white hover:bg-card-bg'
+                  ? 'cyan-gradient-bg text-[#050505] font-extrabold shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-[#111820]'
               }`}
             >
               <div className="flex items-center space-x-3">
                 <MessageSquare className="h-4 w-4" />
                 <span>Client Messages / Chat</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/20 text-gold font-bold">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${activeTab === 'chat' ? 'bg-[#050505]/20 text-[#050505]' : 'bg-[#00BFFF]/20 text-[#00BFFF]'}`}>
                 {clients.filter(c => c.role !== 'admin').length}
               </span>
             </button>
@@ -718,8 +718,8 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('settings')}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-300 ${
                 activeTab === 'settings'
-                  ? 'bg-gold text-black shadow-[0_0_15px_rgba(229,169,60,0.3)]'
-                  : 'text-gray-400 hover:text-white hover:bg-card-bg'
+                  ? 'cyan-gradient-bg text-[#050505] font-extrabold shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-[#111820]'
               }`}
             >
               <Settings className="h-4 w-4" />
@@ -729,9 +729,9 @@ export default function AdminDashboard() {
         </div>
 
         {/* User Footer & Logout */}
-        <div className="pt-6 border-t border-card-border/80 space-y-3">
+        <div className="pt-6 border-t border-[#1C2329] space-y-3">
           <div className="flex items-center space-x-3">
-            <div className="h-9 w-9 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center text-gold font-black">
+            <div className="h-9 w-9 rounded-full bg-[#00BFFF]/20 border border-[#00BFFF]/40 flex items-center justify-center text-[#00BFFF] font-black">
               GK
             </div>
             <div className="text-xs truncate">

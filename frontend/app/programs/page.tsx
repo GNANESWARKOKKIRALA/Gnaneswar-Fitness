@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
-import { Check, Dumbbell, ShieldAlert, Award, AlertCircle } from 'lucide-react';
+import { Check, Dumbbell, ShieldAlert, Award, AlertCircle, Zap } from 'lucide-react';
 
 interface Program {
   id: number;
@@ -40,7 +40,6 @@ const FALLBACK_PROGRAMS: Program[] = [
 export default function Programs() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadPrograms() {
@@ -84,21 +83,21 @@ export default function Programs() {
   };
 
   return (
-    <div className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-[#050505] text-[#FFFFFF] space-y-16">
       {/* Header */}
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <h1 className="text-xs uppercase tracking-widest text-gold font-bold">Training Catalogs</h1>
-        <h2 className="text-3xl sm:text-5xl font-extrabold text-white mt-2">
-          Coaching Programs
-        </h2>
-        <p className="text-gray-400 mt-4 text-lg">
+      <div className="text-center max-w-3xl mx-auto space-y-3">
+        <span className="text-xs font-extrabold uppercase tracking-widest text-[#00BFFF] font-display">Training Catalogs</span>
+        <h1 className="text-4xl sm:text-6xl font-black font-display text-white uppercase">
+          COACHING <span className="cyan-gradient-text">PROGRAMS</span>
+        </h1>
+        <p className="text-[#8B949E] text-sm sm:text-base leading-relaxed">
           Choose a scientific path designed to trigger hyper-focused physical results. Start downloading templates instantly.
         </p>
       </div>
 
       {loading ? (
         <div className="flex justify-center items-center py-20">
-          <Dumbbell className="h-12 w-12 text-gold animate-spin" />
+          <Dumbbell className="h-12 w-12 text-[#00BFFF] animate-spin" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -107,36 +106,36 @@ export default function Programs() {
             return (
               <div 
                 key={program.id}
-                className="glass-panel rounded-3xl border border-card-border p-8 flex flex-col justify-between hover:scale-[1.02] transition-all duration-300"
+                className="card-classic p-8 flex flex-col justify-between"
               >
                 <div>
-                  <div className="inline-flex items-center space-x-1.5 bg-gold/10 border border-gold/20 px-3 py-1 rounded-full text-gold text-xs font-semibold uppercase tracking-wide mb-6">
+                  <div className="inline-flex items-center space-x-1.5 bg-[#00BFFF]/10 border border-[#00BFFF]/30 px-3 py-1 rounded-full text-[#00BFFF] text-xs font-extrabold uppercase tracking-wide mb-6 font-display">
                     <Award className="h-3.5 w-3.5" />
                     <span>{program.type === 'both' ? 'Training + Diet' : `${program.type} split`}</span>
                   </div>
                   
                   <h3 className="text-xl font-bold text-white mb-2">{program.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed mb-6">{program.description}</p>
+                  <p className="text-[#8B949E] text-xs leading-relaxed mb-6">{program.description}</p>
                   
                   <ul className="space-y-3 mb-8">
                     {features.map((feature, i) => (
-                      <li key={i} className="flex items-start space-x-2.5 text-sm text-gray-300">
-                        <Check className="h-4 w-4 text-gold shrink-0 mt-0.5" />
+                      <li key={i} className="flex items-start space-x-2.5 text-xs text-[#E5E7EB]">
+                        <Check className="h-4 w-4 text-[#00BFFF] shrink-0 mt-0.5" />
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 
-                <div className="pt-6 border-t border-card-border">
+                <div className="pt-6 border-t border-[#1C2329]">
                   <div className="flex items-baseline justify-between mb-6">
-                    <span className="text-gray-400 text-sm font-semibold">One-time purchase</span>
-                    <span className="text-3xl font-black text-white">₹{program.price}</span>
+                    <span className="text-[#8B949E] text-xs font-semibold">One-time purchase</span>
+                    <span className="text-3xl font-black font-display text-white">₹{program.price}</span>
                   </div>
                   
                   <Link 
                     href={`/pricing?select=${program.id}`}
-                    className="w-full block text-center bg-transparent border border-gold text-gold hover:bg-gold hover:text-background font-bold py-3 rounded-full transition-all duration-300"
+                    className="w-full block text-center btn-primary py-3 text-xs font-extrabold"
                   >
                     Buy Program Now
                   </Link>
