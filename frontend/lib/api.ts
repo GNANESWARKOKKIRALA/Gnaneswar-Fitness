@@ -48,7 +48,15 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
     let errorMessage = 'An error occurred';
     try {
       const errData = await response.json();
-      errorMessage = errData.detail || errorMessage;
+      if (Array.isArray(errData.detail)) {
+        errorMessage = errData.detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
+      } else if (typeof errData.detail === 'string') {
+        errorMessage = errData.detail;
+      } else if (errData.detail && typeof errData.detail === 'object') {
+        errorMessage = JSON.stringify(errData.detail);
+      } else {
+        errorMessage = response.statusText || errorMessage;
+      }
     } catch {
       errorMessage = response.statusText || errorMessage;
     }

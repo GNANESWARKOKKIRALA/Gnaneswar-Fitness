@@ -19,7 +19,7 @@ export default function Navbar() {
             <Link href="/" className="flex items-center space-x-3 group">
               <div className="relative h-11 w-11 rounded-xl overflow-hidden border border-gold/40 shadow-[0_0_15px_rgba(229,169,60,0.3)] group-hover:scale-105 transition-transform duration-300">
                 <img 
-                  src="/logo.png" 
+                  src="/logo.png?v=2" 
                   alt="Gnaneswar Fit Logo" 
                   className="h-full w-full object-cover"
                 />

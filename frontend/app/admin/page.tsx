@@ -277,12 +277,12 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       const formData = new FormData();
-      formData.append('title', blogForm.title);
-      formData.append('body', blogForm.body);
-      formData.append('category', blogForm.category);
-      formData.append('tags', blogForm.tags);
-      formData.append('author', blogForm.author);
-      formData.append('is_published', blogForm.is_published.toString());
+      formData.append('title', blogForm.title || '');
+      formData.append('body', blogForm.body || '');
+      formData.append('category', blogForm.category || 'Training');
+      formData.append('tags', blogForm.tags || 'fitness,nutrition');
+      formData.append('author', blogForm.author || 'Gnaneswar Kokkirala');
+      formData.append('is_published', blogForm.is_published ? 'true' : 'false');
       if (blogForm.cover_img_url) formData.append('cover_img_url', blogForm.cover_img_url);
       if (blogForm.cover_file) formData.append('cover_img_file', blogForm.cover_file);
 
@@ -322,13 +322,13 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       const formData = new FormData();
-      formData.append('client_name', clientTransForm.client_name);
-      formData.append('story', clientTransForm.story);
-      formData.append('duration', clientTransForm.duration);
-      formData.append('before_weight', clientTransForm.before_weight);
-      formData.append('after_weight', clientTransForm.after_weight);
-      formData.append('goal', clientTransForm.goal);
-      formData.append('is_published', clientTransForm.is_published.toString());
+      formData.append('client_name', clientTransForm.client_name || '');
+      formData.append('story', clientTransForm.story || '');
+      formData.append('duration', clientTransForm.duration || '12 Weeks');
+      formData.append('before_weight', clientTransForm.before_weight || '');
+      formData.append('after_weight', clientTransForm.after_weight || '');
+      formData.append('goal', clientTransForm.goal || 'fat loss');
+      formData.append('is_published', clientTransForm.is_published ? 'true' : 'false');
       if (clientTransForm.before_img_url) formData.append('before_img_url', clientTransForm.before_img_url);
       if (clientTransForm.after_img_url) formData.append('after_img_url', clientTransForm.after_img_url);
       if (clientTransForm.video_url) formData.append('video_url', clientTransForm.video_url);
@@ -373,13 +373,13 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       const formData = new FormData();
-      formData.append('title', myTransForm.title);
-      formData.append('story', myTransForm.story);
-      formData.append('duration', myTransForm.duration);
-      formData.append('before_weight', myTransForm.before_weight);
-      formData.append('after_weight', myTransForm.after_weight);
-      formData.append('category', myTransForm.category);
-      formData.append('is_published', myTransForm.is_published.toString());
+      formData.append('title', myTransForm.title || '');
+      formData.append('story', myTransForm.story || '');
+      formData.append('duration', myTransForm.duration || '24 Weeks');
+      formData.append('before_weight', myTransForm.before_weight || '');
+      formData.append('after_weight', myTransForm.after_weight || '');
+      formData.append('category', myTransForm.category || 'Bodybuilding Prep');
+      formData.append('is_published', myTransForm.is_published ? 'true' : 'false');
       if (myTransForm.before_img_url) formData.append('before_img_url', myTransForm.before_img_url);
       if (myTransForm.after_img_url) formData.append('after_img_url', myTransForm.after_img_url);
       if (myTransForm.after_img_2_url) formData.append('after_img_2_url', myTransForm.after_img_2_url);
@@ -426,10 +426,10 @@ export default function AdminDashboard() {
     e.preventDefault();
     try {
       const formData = new FormData();
-      formData.append('title', videoForm.title);
-      formData.append('description', videoForm.description);
-      formData.append('client_name', videoForm.client_name);
-      formData.append('is_published', videoForm.is_published.toString());
+      formData.append('title', videoForm.title || '');
+      formData.append('description', videoForm.description || '');
+      formData.append('client_name', videoForm.client_name || '');
+      formData.append('is_published', videoForm.is_published ? 'true' : 'false');
       if (videoForm.video_url) formData.append('video_url', videoForm.video_url);
       if (videoForm.thumbnail_url) formData.append('thumbnail_url', videoForm.thumbnail_url);
       if (videoForm.video_file) formData.append('video_file', videoForm.video_file);
@@ -535,7 +535,7 @@ export default function AdminDashboard() {
           {/* Header Brand */}
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 rounded-xl overflow-hidden border border-gold/40 shadow-[0_0_15px_rgba(229,169,60,0.3)]">
-              <img src="/logo.png" alt="Logo" className="h-full w-full object-cover" />
+              <img src="/logo.png?v=2" alt="Logo" className="h-full w-full object-cover" />
             </div>
             <div>
               <h2 className="text-lg font-black tracking-wider text-white uppercase">

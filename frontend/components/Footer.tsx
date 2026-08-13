@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 rounded-xl overflow-hidden border border-gold/40 shadow-[0_0_15px_rgba(229,169,60,0.2)]">
-                <img src="/logo.png" alt="Gnaneswar Fit Logo" className="h-full w-full object-cover" />
+                <img src="/logo.png?v=2" alt="Gnaneswar Fit Logo" className="h-full w-full object-cover" />
               </div>
               <span className="text-xl font-black tracking-wider text-foreground uppercase">
                 Gnaneswar<span className="gold-gradient-text">FIT</span>
