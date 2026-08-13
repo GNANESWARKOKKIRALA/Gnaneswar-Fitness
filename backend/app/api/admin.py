@@ -87,7 +87,7 @@ def get_all_users(
     current_admin: User = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
-    return db.query(User).filter(User.role == "user").all()
+    return db.query(User).filter(User.role != "admin").all()
 
 @router.put("/users/{user_id}/status", response_model=UserResponse)
 def toggle_user_status(

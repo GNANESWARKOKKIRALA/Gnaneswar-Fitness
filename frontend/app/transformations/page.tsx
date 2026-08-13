@@ -99,42 +99,42 @@ export default function Transformations() {
           </div>
 
           <div className="card-classic p-6 sm:p-10 space-y-8 border border-[#00BFFF]/30 shadow-2xl">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <p className="text-center text-xs uppercase tracking-widest text-gray-400 font-extrabold font-display">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center justify-items-center">
+              <div className="space-y-3 text-center">
+                <p className="text-xs uppercase tracking-widest text-gray-400 font-extrabold font-display">
                   Before ({activeSelfTrans.before_weight || '60 kg'})
                 </p>
-                <div className="relative bg-[#050505] rounded-2xl border border-[#1C2329] p-2 overflow-hidden flex items-center justify-center h-[380px] sm:h-[450px]">
+                <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-full overflow-hidden border-4 border-[#1C2329] shadow-xl bg-[#050505] logo-shine group">
                   <img 
                     src={resolveMediaUrl(activeSelfTrans.before_img)} 
                     alt="Before" 
-                    className="h-full w-full object-contain rounded-xl"
+                    className="h-full w-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <p className="text-center text-xs uppercase tracking-widest text-[#00BFFF] font-extrabold font-display">
+              <div className="space-y-3 text-center">
+                <p className="text-xs uppercase tracking-widest text-[#00BFFF] font-extrabold font-display">
                   After ({activeSelfTrans.after_weight || '70 kg'}) - Front Flex
                 </p>
-                <div className="relative bg-[#050505] rounded-2xl border border-[#00BFFF]/40 p-2 overflow-hidden flex items-center justify-center h-[380px] sm:h-[450px] shadow-[0_0_15px_rgba(0,191,255,0.15)]">
+                <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-full overflow-hidden border-4 border-[#00BFFF] shadow-[0_0_25px_rgba(0,191,255,0.4)] bg-[#050505] logo-shine group">
                   <img 
                     src={resolveMediaUrl(activeSelfTrans.after_img)} 
                     alt="After Front" 
-                    className="h-full w-full object-contain rounded-xl"
+                    className="h-full w-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <p className="text-center text-xs uppercase tracking-widest text-[#00BFFF] font-extrabold font-display">
+              <div className="space-y-3 text-center">
+                <p className="text-xs uppercase tracking-widest text-[#00BFFF] font-extrabold font-display">
                   After ({activeSelfTrans.after_weight || '70 kg'}) - Side Flex
                 </p>
-                <div className="relative bg-[#050505] rounded-2xl border border-[#00BFFF]/40 p-2 overflow-hidden flex items-center justify-center h-[380px] sm:h-[450px] shadow-[0_0_15px_rgba(0,191,255,0.15)]">
+                <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-full overflow-hidden border-4 border-[#00BFFF] shadow-[0_0_25px_rgba(0,191,255,0.4)] bg-[#050505] logo-shine group">
                   <img 
                     src={resolveMediaUrl(activeSelfTrans.after_img_2 || activeSelfTrans.after_img)} 
                     alt="After Side" 
-                    className="h-full w-full object-contain rounded-xl"
+                    className="h-full w-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
                   />
                 </div>
               </div>

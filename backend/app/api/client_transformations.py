@@ -10,6 +10,16 @@ from app.services.media_service import save_uploaded_media
 
 router = APIRouter(prefix="/client-transformations", tags=["client_transformations"])
 
+@router.get("/public-stats")
+def get_public_stats(db: Session = Depends(get_db)):
+    clients_count = db.query(User).filter(User.role == "user").count()
+    transformations_count = db.query(ClientTransformation).filter(ClientTransformation.is_published == True).count()
+    return {
+        "clients_count": clients_count,
+        "transformations_count": transformations_count,
+        "display_clients": clients_count
+    }
+
 @router.get("", response_model=List[ClientTransformationResponse])
 def get_client_transformations(
     all_records: bool = False,

@@ -26,6 +26,7 @@ export default function Home() {
   // Transformations State
   const [transformations, setTransformations] = useState<any[]>([]);
   const [selectedGoal, setSelectedGoal] = useState('ALL');
+  const [stats, setStats] = useState<{ clients_count: number; transformations_count: number }>({ clients_count: 0, transformations_count: 0 });
   
   // Workouts State
   const [selectedWorkoutCategory, setSelectedWorkoutCategory] = useState('Chest');
@@ -38,17 +39,23 @@ export default function Home() {
   const [contactMessage, setContactMessage] = useState('');
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
-  // Fetch client transformations dynamically
+  // Fetch client transformations & real DB stats dynamically
   useEffect(() => {
-    const fetchTransformations = async () => {
+    const fetchHomeData = async () => {
       try {
-        const data = await apiFetch('/api/client-transformations');
+        const [data, statsData] = await Promise.all([
+          apiFetch('/api/client-transformations').catch(() => []),
+          apiFetch('/api/client-transformations/public-stats').catch(() => ({ clients_count: 0, transformations_count: 0 }))
+        ]);
         setTransformations(data || []);
+        if (statsData) {
+          setStats(statsData);
+        }
       } catch (err) {
-        console.error('Error loading transformations for homepage:', err);
+        console.error('Error loading homepage data:', err);
       }
     };
-    fetchTransformations();
+    fetchHomeData();
   }, []);
 
   const workoutCategories = ['Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Push', 'Pull'];
@@ -223,18 +230,22 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Stat Counters */}
+            {/* Dynamic Real DB Stat Counters */}
             <div className="grid grid-cols-2 gap-6">
               <div className="card-classic p-8 text-center space-y-2">
-                <p className="text-4xl sm:text-6xl font-black font-display cyan-gradient-text">20+</p>
+                <p className="text-4xl sm:text-6xl font-black font-display cyan-gradient-text">
+                  {stats.transformations_count || transformations.length || 0}
+                </p>
                 <p className="text-xs font-bold text-white uppercase tracking-wider">Client Transformations</p>
                 <p className="text-[11px] text-[#8B949E]">Verified fat loss & hypertrophy results</p>
               </div>
 
               <div className="card-classic p-8 text-center space-y-2">
-                <p className="text-4xl sm:text-6xl font-black font-display cyan-gradient-text">5+</p>
-                <p className="text-xs font-bold text-white uppercase tracking-wider">Years Experience</p>
-                <p className="text-[11px] text-[#8B949E]">Natural contest prep & strength</p>
+                <p className="text-4xl sm:text-6xl font-black font-display cyan-gradient-text">
+                  {stats.clients_count || 0}
+                </p>
+                <p className="text-xs font-bold text-white uppercase tracking-wider">Registered Clients</p>
+                <p className="text-[11px] text-[#8B949E]">Active enrolled coaching accounts</p>
               </div>
 
               <div className="card-classic p-8 text-center space-y-2">
