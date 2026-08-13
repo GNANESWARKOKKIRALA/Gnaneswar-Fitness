@@ -194,34 +194,27 @@ class UserUpdateRequest(BaseModel):
     phone: Optional[str] = None
 
 @router.post("/media")
-def upload_media_file(
+async def upload_media_file(
     file: UploadFile = File(...),
     custom_name: Optional[str] = Form(None),
     current_admin: User = Depends(get_current_admin)
 ):
-    if not os.path.exists(settings.UPLOAD_DIR):
-        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-    
-    if custom_name and custom_name.strip():
-        filename = os.path.basename(custom_name.strip())
-        _, old_ext = os.path.splitext(file.filename)
-        _, new_ext = os.path.splitext(filename)
-        if not new_ext:
-            filename += old_ext
-    else:
-        filename = os.path.basename(file.filename)
-        
-    filepath = os.path.join(settings.UPLOAD_DIR, filename)
-    
-    with open(filepath, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-        
-    return {
-        "name": filename,
-        "url": f"/uploads/{filename}",
-        "size": os.path.getsize(filepath),
-        "modified_at": os.path.getmtime(filepath)
-    }
+    try:
+        from app.services.media_service import save_uploaded_media
+        res = await save_uploaded_media(file, custom_name)
+        return {
+            "name": res["filename"],
+            "url": res["url"],
+            "size": res["file_size"],
+            "modified_at": os.path.getmtime(res["filepath"]) if os.path.exists(res["filepath"]) else 0
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Upload failed: {str(e)}"
+        )
 
 @router.put("/media/{filename}/rename")
 def rename_media_file(
