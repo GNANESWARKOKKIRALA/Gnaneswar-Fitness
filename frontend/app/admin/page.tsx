@@ -1471,11 +1471,31 @@ export default function AdminDashboard() {
 
               <div className="space-y-2">
                 <label className="block text-gray-400 font-bold">Featured Cover Image</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={blogForm.cover_img_url}
+                    onChange={(e) => setBlogForm({ ...blogForm, cover_img_url: e.target.value })}
+                    placeholder="Enter image URL or select from media library..."
+                    className="flex-1 bg-[#050507] border border-card-border rounded-xl px-4 py-2 text-white text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMediaPicker({
+                      isOpen: true,
+                      onSelect: (url) => setBlogForm({ ...blogForm, cover_img_url: url })
+                    })}
+                    className="px-3 py-2 bg-card-bg border border-gold/40 text-gold rounded-xl text-xs font-bold hover:bg-gold/10 shrink-0 flex items-center space-x-1"
+                  >
+                    <ImageIcon className="h-3.5 w-3.5" />
+                    <span>Pick Media</span>
+                  </button>
+                </div>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => setBlogForm({ ...blogForm, cover_file: e.target.files?.[0] || null })}
-                  className="text-xs text-gray-400 file:mr-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-card-bg file:text-gold"
+                  className="text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-card-bg file:text-gold"
                 />
               </div>
 
@@ -1596,33 +1616,91 @@ export default function AdminDashboard() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-400 font-bold mb-1">Before Image *</label>
+                <div className="space-y-1.5">
+                  <label className="block text-gray-400 font-bold">Before Image *</label>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      value={clientTransForm.before_img_url}
+                      onChange={(e) => setClientTransForm({ ...clientTransForm, before_img_url: e.target.value })}
+                      placeholder="Image URL or pick..."
+                      className="flex-1 bg-[#050507] border border-card-border rounded-xl px-3 py-1.5 text-white text-[11px]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setMediaPicker({
+                        isOpen: true,
+                        onSelect: (url) => setClientTransForm({ ...clientTransForm, before_img_url: url })
+                      })}
+                      className="px-2.5 py-1.5 bg-card-bg border border-gold/40 text-gold rounded-xl text-[11px] font-bold hover:bg-gold/10 shrink-0"
+                    >
+                      Pick
+                    </button>
+                  </div>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setClientTransForm({ ...clientTransForm, before_file: e.target.files?.[0] || null })}
-                    className="text-xs text-gray-400 file:mr-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-card-bg file:text-gold"
+                    className="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-card-bg file:text-gold"
                   />
                 </div>
-                <div>
-                  <label className="block text-gray-400 font-bold mb-1">After Image *</label>
+
+                <div className="space-y-1.5">
+                  <label className="block text-gray-400 font-bold">After Image *</label>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      value={clientTransForm.after_img_url}
+                      onChange={(e) => setClientTransForm({ ...clientTransForm, after_img_url: e.target.value })}
+                      placeholder="Image URL or pick..."
+                      className="flex-1 bg-[#050507] border border-card-border rounded-xl px-3 py-1.5 text-white text-[11px]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setMediaPicker({
+                        isOpen: true,
+                        onSelect: (url) => setClientTransForm({ ...clientTransForm, after_img_url: url })
+                      })}
+                      className="px-2.5 py-1.5 bg-card-bg border border-gold/40 text-gold rounded-xl text-[11px] font-bold hover:bg-gold/10 shrink-0"
+                    >
+                      Pick
+                    </button>
+                  </div>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setClientTransForm({ ...clientTransForm, after_file: e.target.files?.[0] || null })}
-                    className="text-xs text-gray-400 file:mr-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-card-bg file:text-gold"
+                    className="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-card-bg file:text-gold"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-gray-400 font-bold mb-1">Transformation Video (Optional MP4)</label>
+              <div className="space-y-1.5">
+                <label className="block text-gray-400 font-bold">Transformation Video (Optional MP4 / URL)</label>
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    value={clientTransForm.video_url}
+                    onChange={(e) => setClientTransForm({ ...clientTransForm, video_url: e.target.value })}
+                    placeholder="Video URL or select from library..."
+                    className="flex-1 bg-[#050507] border border-card-border rounded-xl px-3 py-1.5 text-white text-[11px]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMediaPicker({
+                      isOpen: true,
+                      onSelect: (url) => setClientTransForm({ ...clientTransForm, video_url: url })
+                    })}
+                    className="px-2.5 py-1.5 bg-card-bg border border-gold/40 text-gold rounded-xl text-[11px] font-bold hover:bg-gold/10 shrink-0"
+                  >
+                    Pick
+                  </button>
+                </div>
                 <input
                   type="file"
                   accept="video/*"
                   onChange={(e) => setClientTransForm({ ...clientTransForm, video_file: e.target.files?.[0] || null })}
-                  className="text-xs text-gray-400 file:mr-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-card-bg file:text-gold"
+                  className="text-xs text-gray-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-card-bg file:text-gold"
                 />
               </div>
 
@@ -1696,31 +1774,90 @@ export default function AdminDashboard() {
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-gray-400 font-bold mb-1">Before Image *</label>
+                <div className="space-y-1.5">
+                  <label className="block text-gray-400 font-bold">Before Image *</label>
+                  <div className="flex gap-1">
+                    <input
+                      type="text"
+                      value={myTransForm.before_img_url}
+                      onChange={(e) => setMyTransForm({ ...myTransForm, before_img_url: e.target.value })}
+                      placeholder="URL or pick..."
+                      className="flex-1 bg-[#050507] border border-card-border rounded-xl px-2 py-1 text-white text-[10px]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setMediaPicker({
+                        isOpen: true,
+                        onSelect: (url) => setMyTransForm({ ...myTransForm, before_img_url: url })
+                      })}
+                      className="px-2 py-1 bg-card-bg border border-gold/40 text-gold rounded-xl text-[10px] font-bold"
+                    >
+                      Pick
+                    </button>
+                  </div>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setMyTransForm({ ...myTransForm, before_file: e.target.files?.[0] || null })}
-                    className="text-xs text-gray-400 file:mr-1 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-card-bg file:text-gold"
+                    className="text-xs text-gray-400 file:mr-1 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[9px] file:font-bold file:bg-card-bg file:text-gold"
                   />
                 </div>
-                <div>
-                  <label className="block text-gray-400 font-bold mb-1">After Image (Front) *</label>
+
+                <div className="space-y-1.5">
+                  <label className="block text-gray-400 font-bold">After (Front) *</label>
+                  <div className="flex gap-1">
+                    <input
+                      type="text"
+                      value={myTransForm.after_img_url}
+                      onChange={(e) => setMyTransForm({ ...myTransForm, after_img_url: e.target.value })}
+                      placeholder="URL or pick..."
+                      className="flex-1 bg-[#050507] border border-card-border rounded-xl px-2 py-1 text-white text-[10px]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setMediaPicker({
+                        isOpen: true,
+                        onSelect: (url) => setMyTransForm({ ...myTransForm, after_img_url: url })
+                      })}
+                      className="px-2 py-1 bg-card-bg border border-gold/40 text-gold rounded-xl text-[10px] font-bold"
+                    >
+                      Pick
+                    </button>
+                  </div>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setMyTransForm({ ...myTransForm, after_file: e.target.files?.[0] || null })}
-                    className="text-xs text-gray-400 file:mr-1 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-card-bg file:text-gold"
+                    className="text-xs text-gray-400 file:mr-1 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[9px] file:font-bold file:bg-card-bg file:text-gold"
                   />
                 </div>
-                <div>
-                  <label className="block text-gray-400 font-bold mb-1">After Image (Side)</label>
+
+                <div className="space-y-1.5">
+                  <label className="block text-gray-400 font-bold">After (Side)</label>
+                  <div className="flex gap-1">
+                    <input
+                      type="text"
+                      value={myTransForm.after_img_2_url}
+                      onChange={(e) => setMyTransForm({ ...myTransForm, after_img_2_url: e.target.value })}
+                      placeholder="URL or pick..."
+                      className="flex-1 bg-[#050507] border border-card-border rounded-xl px-2 py-1 text-white text-[10px]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setMediaPicker({
+                        isOpen: true,
+                        onSelect: (url) => setMyTransForm({ ...myTransForm, after_img_2_url: url })
+                      })}
+                      className="px-2 py-1 bg-card-bg border border-gold/40 text-gold rounded-xl text-[10px] font-bold"
+                    >
+                      Pick
+                    </button>
+                  </div>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setMyTransForm({ ...myTransForm, after_file_2: e.target.files?.[0] || null })}
-                    className="text-xs text-gray-400 file:mr-1 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-card-bg file:text-gold"
+                    className="text-xs text-gray-400 file:mr-1 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[9px] file:font-bold file:bg-card-bg file:text-gold"
                   />
                 </div>
               </div>
@@ -1782,23 +1919,61 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <div>
-                <label className="block text-gray-400 font-bold mb-1">Video File (MP4/WebM) *</label>
+              <div className="space-y-1.5">
+                <label className="block text-gray-400 font-bold">Video File (MP4/WebM) *</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={videoForm.video_url}
+                    onChange={(e) => setVideoForm({ ...videoForm, video_url: e.target.value })}
+                    placeholder="Video URL or pick from media library..."
+                    className="flex-1 bg-[#050507] border border-card-border rounded-xl px-3 py-1.5 text-white text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMediaPicker({
+                      isOpen: true,
+                      onSelect: (url) => setVideoForm({ ...videoForm, video_url: url })
+                    })}
+                    className="px-3 py-1.5 bg-card-bg border border-gold/40 text-gold rounded-xl text-xs font-bold shrink-0"
+                  >
+                    Pick
+                  </button>
+                </div>
                 <input
                   type="file"
                   accept="video/*"
                   onChange={(e) => setVideoForm({ ...videoForm, video_file: e.target.files?.[0] || null })}
-                  className="text-xs text-gray-400 file:mr-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-card-bg file:text-gold"
+                  className="text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-card-bg file:text-gold"
                 />
               </div>
 
-              <div>
-                <label className="block text-gray-400 font-bold mb-1">Thumbnail Image (Optional)</label>
+              <div className="space-y-1.5">
+                <label className="block text-gray-400 font-bold">Thumbnail Image (Optional)</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={videoForm.thumbnail_url}
+                    onChange={(e) => setVideoForm({ ...videoForm, thumbnail_url: e.target.value })}
+                    placeholder="Thumbnail URL or pick..."
+                    className="flex-1 bg-[#050507] border border-card-border rounded-xl px-3 py-1.5 text-white text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMediaPicker({
+                      isOpen: true,
+                      onSelect: (url) => setVideoForm({ ...videoForm, thumbnail_url: url })
+                    })}
+                    className="px-3 py-1.5 bg-card-bg border border-gold/40 text-gold rounded-xl text-xs font-bold shrink-0"
+                  >
+                    Pick
+                  </button>
+                </div>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => setVideoForm({ ...videoForm, thumbnail_file: e.target.files?.[0] || null })}
-                  className="text-xs text-gray-400 file:mr-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-card-bg file:text-gold"
+                  className="text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-card-bg file:text-gold"
                 />
               </div>
 
@@ -1830,6 +2005,62 @@ export default function AdminDashboard() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* MEDIA PICKER MODAL OVERLAY */}
+      {mediaPicker.isOpen && (
+        <div className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0e1017] border border-gold/50 rounded-3xl p-6 max-w-3xl w-full space-y-6 shadow-2xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-card-border pb-4">
+              <div className="flex items-center space-x-2">
+                <ImageIcon className="h-5 w-5 text-gold" />
+                <h3 className="text-lg font-extrabold text-white">Select from Media Library</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMediaPicker({ ...mediaPicker, isOpen: false })}
+                className="text-gray-400 hover:text-white text-sm font-bold bg-card-bg px-3 py-1 rounded-full border border-card-border"
+              >
+                Close (✕)
+              </button>
+            </div>
+
+            <div className="overflow-y-auto flex-1 p-2">
+              {mediaFiles.length === 0 ? (
+                <div className="text-center py-12 text-gray-400 text-sm">
+                  No uploaded media assets found. Upload images or videos in the Media Library tab first.
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {mediaFiles.map((file) => {
+                    const isImg = file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+                    return (
+                      <div
+                        key={file.name}
+                        onClick={() => {
+                          mediaPicker.onSelect(file.url);
+                          setMediaPicker({ ...mediaPicker, isOpen: false });
+                          showToast('success', `Selected media: ${file.name}`);
+                        }}
+                        className="glass-panel p-3 rounded-2xl border border-card-border hover:border-gold cursor-pointer transition-all duration-300 group flex flex-col items-center justify-between text-center space-y-2 hover:scale-105"
+                      >
+                        <div className="h-24 w-full rounded-xl overflow-hidden bg-black/50 flex items-center justify-center">
+                          {isImg ? (
+                            <img src={resolveMediaUrl(file.url)} alt={file.name} className="h-full w-full object-cover" />
+                          ) : (
+                            <Film className="h-8 w-8 text-gold" />
+                          )}
+                        </div>
+                        <p className="text-[10px] text-gray-300 font-bold truncate w-full group-hover:text-gold">{file.name}</p>
+                        <span className="text-[9px] text-black gold-gradient-bg px-2 py-0.5 rounded-full font-extrabold">Select</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
