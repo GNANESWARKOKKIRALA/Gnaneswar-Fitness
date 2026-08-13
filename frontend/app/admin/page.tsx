@@ -239,10 +239,10 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       const [bData, cData, mData, vData, medData, settData, oData, clData] = await Promise.all([
-        apiFetch('/api/blogs?all_records=true', {}, token),
-        apiFetch('/api/client-transformations?all_records=true', {}, token),
-        apiFetch('/api/my-transformations?all_records=true', {}, token),
-        apiFetch('/api/transformation-videos?all_records=true', {}, token),
+        apiFetch('/api/blogs?all_records=true', {}, token).catch(() => []),
+        apiFetch('/api/client-transformations?all_records=true', {}, token).catch(() => []),
+        apiFetch('/api/my-transformations?all_records=true', {}, token).catch(() => []),
+        apiFetch('/api/transformation-videos?all_records=true', {}, token).catch(() => []),
         apiFetch('/api/admin/media', {}, token).catch(() => []),
         apiFetch('/api/settings', {}, token).catch(() => ({})),
         apiFetch('/api/admin/orders', {}, token).catch(() => []),

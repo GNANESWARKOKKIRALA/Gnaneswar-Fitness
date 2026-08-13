@@ -100,11 +100,11 @@ class ProgressEntryResponse(ProgressEntryBase):
 
 # Client Transformation Schemas
 class ClientTransformationBase(BaseModel):
-    client_name: str
-    before_img: str
-    after_img: str
+    client_name: Optional[str] = "Client"
+    before_img: Optional[str] = None
+    after_img: Optional[str] = None
     video_url: Optional[str] = None
-    story: str
+    story: Optional[str] = ""
     duration: Optional[str] = "12 Weeks"
     before_weight: Optional[str] = None
     after_weight: Optional[str] = None
@@ -116,17 +116,17 @@ class ClientTransformationCreate(ClientTransformationBase):
 
 class ClientTransformationResponse(ClientTransformationBase):
     id: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
 
 # My Transformation Schemas
 class MyTransformationBase(BaseModel):
-    title: str
-    story: str
-    before_img: str
-    after_img: str
+    title: Optional[str] = "Transformation"
+    story: Optional[str] = ""
+    before_img: Optional[str] = None
+    after_img: Optional[str] = None
     after_img_2: Optional[str] = None
     video_url: Optional[str] = None
     duration: Optional[str] = "24 Weeks"
@@ -140,18 +140,18 @@ class MyTransformationCreate(MyTransformationBase):
 
 class MyTransformationResponse(MyTransformationBase):
     id: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
 
 # Transformation Video Schemas
 class TransformationVideoBase(BaseModel):
-    title: str
+    title: Optional[str] = "Transformation Video"
     description: Optional[str] = None
     client_name: Optional[str] = None
     thumbnail_url: Optional[str] = None
-    video_url: str
+    video_url: Optional[str] = ""
     is_published: bool = True
 
 class TransformationVideoCreate(TransformationVideoBase):
@@ -159,31 +159,31 @@ class TransformationVideoCreate(TransformationVideoBase):
 
 class TransformationVideoResponse(TransformationVideoBase):
     id: int
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
 
 # Legacy Transformation schema
 class TransformationBase(BaseModel):
-    before_img: str
-    after_img: str
-    story: str
+    before_img: Optional[str] = None
+    after_img: Optional[str] = None
+    story: Optional[str] = ""
     is_public: bool = True
 
 class TransformationResponse(TransformationBase):
     id: int
     user_id: Optional[int] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
 
 # Blog Post schemas
 class BlogPostBase(BaseModel):
-    title: str
+    title: Optional[str] = "Blog Post"
     slug: Optional[str] = None
-    body: str
+    body: Optional[str] = ""
     cover_img: Optional[str] = None
     category: Optional[str] = "Bodybuilding"
     tags: Optional[str] = "fitness,nutrition"
@@ -195,9 +195,9 @@ class BlogPostCreate(BlogPostBase):
 
 class BlogPostResponse(BlogPostBase):
     id: int
-    slug: str
-    published_at: datetime
-    created_at: datetime
+    slug: Optional[str] = "post"
+    published_at: Optional[datetime] = None
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
