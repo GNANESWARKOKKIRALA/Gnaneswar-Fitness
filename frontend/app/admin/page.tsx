@@ -103,7 +103,7 @@ export default function AdminDashboard() {
 
   // Selected Dashboard Tab
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'blogs' | 'client-transformations' | 'my-transformations' | 'videos' | 'media' | 'settings' | 'orders' | 'clients'
+    'overview' | 'blogs' | 'client-transformations' | 'my-transformations' | 'videos' | 'media' | 'chat' | 'settings' | 'orders' | 'clients'
   >('overview');
 
   const [loading, setLoading] = useState(true);
@@ -118,6 +118,14 @@ export default function AdminDashboard() {
   const [websiteSettings, setWebsiteSettings] = useState<Record<string, string>>({});
   const [orders, setOrders] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
+
+  // Chat tab state
+  const [selectedChatClient, setSelectedChatClient] = useState<any | null>(null);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatText, setChatText] = useState('');
+  const [chatFile, setChatFile] = useState<File | null>(null);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatSearch, setChatSearch] = useState('');
 
   // Confirmation modal state
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -511,6 +519,41 @@ export default function AdminDashboard() {
     }
   };
 
+  // --- CLIENT CHAT ACTIONS ---
+  const fetchChatHistory = async (clientId: number) => {
+    if (!token || !clientId) return;
+    setChatLoading(true);
+    try {
+      const history = await apiFetch(`/api/chat/history?recipient_id=${clientId}`, {}, token);
+      setChatMessages(history || []);
+      await apiFetch(`/api/chat/read?sender_id=${clientId}`, { method: 'POST' }, token).catch(() => {});
+    } catch (err: any) {
+      console.error('Error loading chat:', err);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const handleSendChatMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedChatClient || (!chatText.trim() && !chatFile) || !token) return;
+
+    try {
+      const formData = new FormData();
+      formData.append('receiver_id', selectedChatClient.id.toString());
+      if (chatText.trim()) formData.append('content', chatText.trim());
+      if (chatFile) formData.append('file', chatFile);
+
+      await apiFetch('/api/chat/send', { method: 'POST', body: formData }, token);
+      setChatText('');
+      setChatFile(null);
+      fetchChatHistory(selectedChatClient.id);
+      showToast('success', 'Message sent to client!');
+    } catch (err: any) {
+      showToast('error', err.message || 'Failed to send message');
+    }
+  };
+
   const filteredMedia = mediaFiles.filter(m => m.name.toLowerCase().includes(mediaSearch.toLowerCase()));
 
   return (
@@ -644,6 +687,30 @@ export default function AdminDashboard() {
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/20 text-gold font-bold">
                 {mediaFiles.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('chat');
+                if (clients.length > 0 && !selectedChatClient) {
+                  const firstClient = clients.find(c => c.role !== 'admin') || clients[0];
+                  setSelectedChatClient(firstClient);
+                  if (firstClient) fetchChatHistory(firstClient.id);
+                }
+              }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ${
+                activeTab === 'chat'
+                  ? 'bg-gold text-black shadow-[0_0_15px_rgba(229,169,60,0.3)]'
+                  : 'text-gray-400 hover:text-white hover:bg-card-bg'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <MessageSquare className="h-4 w-4" />
+                <span>Client Messages / Chat</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gold/20 text-gold font-bold">
+                {clients.filter(c => c.role !== 'admin').length}
               </span>
             </button>
 
@@ -1290,6 +1357,198 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB: CLIENT MESSAGES & CHAT */}
+        {activeTab === 'chat' && (
+          <div className="glass-panel p-6 rounded-3xl border border-card-border space-y-6">
+            <div className="flex items-center justify-between border-b border-card-border pb-4">
+              <div>
+                <h2 className="text-xl font-black text-white uppercase tracking-tight">Client Messaging & Live Chat</h2>
+                <p className="text-xs text-gray-400">Directly communicate with clients, review check-ins, send progress feedback and files.</p>
+              </div>
+              <span className="px-3 py-1 bg-gold/10 border border-gold/30 text-gold rounded-full text-xs font-extrabold flex items-center space-x-1">
+                <MessageSquare className="h-3.5 w-3.5" />
+                <span>{clients.filter(c => c.role !== 'admin').length} Clients Registered</span>
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[550px]">
+              {/* Left Column: Client List */}
+              <div className="lg:col-span-4 glass-panel p-4 rounded-2xl border border-card-border flex flex-col space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={chatSearch}
+                    onChange={(e) => setChatSearch(e.target.value)}
+                    placeholder="Search clients..."
+                    className="w-full bg-[#090a0f] border border-card-border focus:border-gold rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="overflow-y-auto flex-1 space-y-2 max-h-[450px]">
+                  {clients.filter(c => c.role !== 'admin' && (c.full_name?.toLowerCase().includes(chatSearch.toLowerCase()) || c.email?.toLowerCase().includes(chatSearch.toLowerCase()))).length === 0 ? (
+                    <div className="text-center py-8 text-xs text-gray-500">No client accounts found.</div>
+                  ) : (
+                    clients
+                      .filter(c => c.role !== 'admin' && (c.full_name?.toLowerCase().includes(chatSearch.toLowerCase()) || c.email?.toLowerCase().includes(chatSearch.toLowerCase())))
+                      .map((c) => (
+                        <div
+                          key={c.id}
+                          onClick={() => {
+                            setSelectedChatClient(c);
+                            fetchChatHistory(c.id);
+                          }}
+                          className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                            selectedChatClient?.id === c.id
+                              ? 'bg-gold/10 border-gold shadow-[0_0_10px_rgba(229,169,60,0.2)]'
+                              : 'bg-black/40 border-card-border hover:border-gray-500'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3 truncate">
+                            <div className="h-9 w-9 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center text-gold font-extrabold text-xs shrink-0">
+                              {c.full_name ? c.full_name.substring(0, 2).toUpperCase() : 'CL'}
+                            </div>
+                            <div className="truncate text-xs">
+                              <p className="font-bold text-white truncate">{c.full_name || c.email}</p>
+                              <p className="text-[10px] text-gray-400 truncate">{c.email}</p>
+                            </div>
+                          </div>
+                          <span className="text-[9px] px-2 py-0.5 rounded-full bg-card-bg text-gray-400 border border-card-border shrink-0">
+                            Client
+                          </span>
+                        </div>
+                      ))
+                  )}
+                </div>
+              </div>
+
+              {/* Right Column: Chat History & Input */}
+              <div className="lg:col-span-8 glass-panel p-4 rounded-2xl border border-card-border flex flex-col justify-between space-y-4">
+                {selectedChatClient ? (
+                  <>
+                    {/* Header */}
+                    <div className="flex items-center justify-between border-b border-card-border pb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-10 w-10 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center text-gold font-extrabold text-sm">
+                          {selectedChatClient.full_name ? selectedChatClient.full_name.substring(0, 2).toUpperCase() : 'CL'}
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white">{selectedChatClient.full_name || selectedChatClient.email}</h4>
+                          <p className="text-[10px] text-gray-400">{selectedChatClient.email} {selectedChatClient.phone ? `• ${selectedChatClient.phone}` : ''}</p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => fetchChatHistory(selectedChatClient.id)}
+                        className="px-3 py-1 bg-card-bg border border-gold/30 text-gold rounded-full text-xs font-bold hover:bg-gold/10"
+                      >
+                        Refresh Chat
+                      </button>
+                    </div>
+
+                    {/* Messages Scroll Box */}
+                    <div className="overflow-y-auto flex-1 p-3 space-y-3 min-h-[320px] max-h-[380px] bg-black/50 rounded-xl border border-card-border">
+                      {chatLoading ? (
+                        <div className="flex justify-center items-center py-12">
+                          <Dumbbell className="h-6 w-6 text-gold animate-spin" />
+                        </div>
+                      ) : chatMessages.length === 0 ? (
+                        <div className="text-center py-16 space-y-2">
+                          <MessageSquare className="h-8 w-8 text-gold/40 mx-auto" />
+                          <p className="text-xs text-gray-400">No chat history with {selectedChatClient.full_name || 'this client'}.</p>
+                          <p className="text-[10px] text-gray-500">Send a greeting message or progress check-in below!</p>
+                        </div>
+                      ) : (
+                        chatMessages.map((msg) => {
+                          const isFromAdmin = msg.sender_id === user?.id || msg.sender_id !== selectedChatClient.id;
+                          return (
+                            <div
+                              key={msg.id}
+                              className={`flex flex-col ${isFromAdmin ? 'items-end' : 'items-start'}`}
+                            >
+                              <div
+                                className={`max-w-[75%] p-3 rounded-2xl text-xs space-y-1 ${
+                                  isFromAdmin
+                                    ? 'bg-gold text-black rounded-br-none shadow-[0_0_10px_rgba(229,169,60,0.2)]'
+                                    : 'bg-[#121520] text-white border border-card-border rounded-bl-none'
+                                }`}
+                              >
+                                {msg.content && <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>}
+                                {msg.file_url && (
+                                  <div className="pt-1">
+                                    {msg.file_type === 'image' ? (
+                                      <img src={resolveMediaUrl(msg.file_url)} alt="Attachment" className="max-h-48 rounded-lg object-cover" />
+                                    ) : (
+                                      <a
+                                        href={resolveMediaUrl(msg.file_url)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`inline-flex items-center space-x-1 font-bold underline ${isFromAdmin ? 'text-black' : 'text-gold'}`}
+                                      >
+                                        <Paperclip className="h-3.5 w-3.5" />
+                                        <span>View File ({msg.file_type || 'attachment'})</span>
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
+                                <span className={`block text-[9px] text-right ${isFromAdmin ? 'text-black/70' : 'text-gray-400'}`}>
+                                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Chat Input Form */}
+                    <form onSubmit={handleSendChatMessage} className="space-y-2">
+                      {chatFile && (
+                        <div className="flex items-center justify-between px-3 py-1.5 bg-gold/10 border border-gold/30 rounded-xl text-xs text-gold">
+                          <span className="truncate">Attached: {chatFile.name}</span>
+                          <button type="button" onClick={() => setChatFile(null)} className="text-red-400 hover:text-white font-bold ml-2">✕</button>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <label className="p-2.5 bg-card-bg border border-card-border rounded-xl text-gray-400 hover:text-gold cursor-pointer shrink-0">
+                          <Paperclip className="h-4 w-4" />
+                          <input
+                            type="file"
+                            onChange={(e) => setChatFile(e.target.files?.[0] || null)}
+                            className="hidden"
+                          />
+                        </label>
+
+                        <input
+                          type="text"
+                          value={chatText}
+                          onChange={(e) => setChatText(e.target.value)}
+                          placeholder={`Message ${selectedChatClient.full_name || 'client'}...`}
+                          className="flex-1 bg-[#090a0f] border border-card-border focus:border-gold rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none"
+                        />
+
+                        <button
+                          type="submit"
+                          disabled={!chatText.trim() && !chatFile}
+                          className="px-4 py-2.5 gold-gradient-bg text-black font-bold rounded-xl text-xs flex items-center space-x-1 hover:scale-105 transition-all disabled:opacity-40 shrink-0"
+                        >
+                          <Send className="h-3.5 w-3.5" />
+                          <span>Send</span>
+                        </button>
+                      </div>
+                    </form>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-24 space-y-3">
+                    <Users className="h-10 w-10 text-gold/40" />
+                    <p className="text-sm font-bold text-white">Select a client from the left list to start messaging.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
