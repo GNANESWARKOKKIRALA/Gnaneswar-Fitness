@@ -49,6 +49,51 @@ class Order(Base):
     program = relationship("Program", back_populates="orders")
     reviewer = relationship("User", foreign_keys=[reviewed_by])
 
+class ClientTransformation(Base):
+    __tablename__ = "client_transformations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    client_name = Column(String, nullable=False)
+    before_img = Column(String, nullable=False)
+    after_img = Column(String, nullable=False)
+    video_url = Column(String, nullable=True)
+    story = Column(Text, nullable=False)
+    duration = Column(String, nullable=True, default="12 Weeks")
+    before_weight = Column(String, nullable=True)
+    after_weight = Column(String, nullable=True)
+    goal = Column(String, nullable=True, default="fat loss") # 'fat loss', 'muscle gain', etc.
+    is_published = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class MyTransformation(Base):
+    __tablename__ = "my_transformations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    story = Column(Text, nullable=False)
+    before_img = Column(String, nullable=False)
+    after_img = Column(String, nullable=False)
+    after_img_2 = Column(String, nullable=True)
+    video_url = Column(String, nullable=True)
+    duration = Column(String, nullable=True, default="24 Weeks")
+    before_weight = Column(String, nullable=True)
+    after_weight = Column(String, nullable=True)
+    category = Column(String, nullable=True, default="Bodybuilding Prep")
+    is_published = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class TransformationVideo(Base):
+    __tablename__ = "transformation_videos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    client_name = Column(String, nullable=True)
+    thumbnail_url = Column(String, nullable=True)
+    video_url = Column(String, nullable=False)
+    is_published = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
 class Transformation(Base):
     __tablename__ = "transformations"
 
@@ -67,7 +112,7 @@ class ProgressEntry(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(Date, nullable=False)
     weight = Column(Float, nullable=False)
-    measurements = Column(Text, nullable=True) # JSON encoded string
+    measurements = Column(Text, nullable=True)
     photo_url = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -81,16 +126,32 @@ class BlogPost(Base):
     slug = Column(String, unique=True, index=True, nullable=False)
     body = Column(Text, nullable=False)
     cover_img = Column(String, nullable=True)
+    category = Column(String, nullable=True, default="Bodybuilding")
+    tags = Column(String, nullable=True, default="fitness,nutrition")
+    author = Column(String, nullable=True, default="Gnaneswar Kokkirala")
+    is_published = Column(Boolean, default=True)
     published_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 class MediaAsset(Base):
     __tablename__ = "media_assets"
 
     id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String, nullable=True)
     file_path = Column(String, nullable=False)
-    type = Column(String, nullable=False) # 'image', 'pdf', etc.
-    uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    file_size = Column(Integer, nullable=True)
+    mime_type = Column(String, nullable=True)
+    type = Column(String, nullable=False, default="image") # 'image', 'video', 'pdf'
+    uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     uploaded_at = Column(DateTime, default=datetime.utcnow)
+
+class WebsiteSetting(Base):
+    __tablename__ = "website_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String, unique=True, index=True, nullable=False)
+    value = Column(Text, nullable=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class ContactMessage(Base):
     __tablename__ = "contact_messages"
@@ -108,7 +169,7 @@ class PlanTemplate(Base):
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     type = Column(String, nullable=False) # 'workout' or 'diet'
-    content = Column(Text, nullable=False) # JSON or markdown list of templates
+    content = Column(Text, nullable=False)
     file_url = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -120,10 +181,10 @@ class AssignedPlan(Base):
     template_id = Column(Integer, ForeignKey("plan_templates.id"), nullable=True)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-    type = Column(String, nullable=False) # 'workout' or 'diet'
+    type = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     file_url = Column(String, nullable=True)
-    schedule_type = Column(String, default="daily") # 'daily', 'weekly', 'monthly'
+    schedule_type = Column(String, default="daily")
     date_assigned = Column(Date, default=datetime.utcnow().date)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -134,7 +195,7 @@ class DailyLog(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(Date, nullable=False, index=True)
     workout_completed = Column(Boolean, default=False)
-    meals_completed = Column(Integer, default=0) # completed count
+    meals_completed = Column(Integer, default=0)
     water_intake_ml = Column(Integer, default=0)
     notes = Column(Text, nullable=True)
     weight = Column(Float, nullable=True)
@@ -148,7 +209,7 @@ class ChatMessage(Base):
     receiver_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     content = Column(Text, nullable=True)
     file_url = Column(String, nullable=True)
-    file_type = Column(String, nullable=True) # 'image', 'pdf', 'voice'
+    file_type = Column(String, nullable=True)
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 

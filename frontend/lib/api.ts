@@ -1,8 +1,23 @@
 const BASE_URL = typeof window !== 'undefined'
-  ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://127.0.0.1:8000'
-      : '')
-  : 'http://127.0.0.1:8000';
+  ? (process.env.NEXT_PUBLIC_API_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:8000' : ''))
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000');
+
+export function getApiBaseUrl(): string {
+  return BASE_URL;
+}
+
+export function resolveMediaUrl(url?: string | null): string {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    // If in production mode, strip localhost prefix if stored
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return url.replace('http://127.0.0.1:8000', '').replace('http://localhost:8000', '');
+    }
+    return url;
+  }
+  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  return `${BASE_URL}${cleanPath}`;
+}
 
 function getHeaders(token?: string, isMultipart = false) {
   const headers: HeadersInit = {};
@@ -22,7 +37,8 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
     ...options.headers,
   };
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const response = await fetch(`${BASE_URL}${cleanEndpoint}`, {
     ...options,
     headers,
   });
@@ -33,7 +49,6 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
       const errData = await response.json();
       errorMessage = errData.detail || errorMessage;
     } catch {
-      // JSON parsing failed, use statusText
       errorMessage = response.statusText || errorMessage;
     }
     throw new Error(errorMessage);

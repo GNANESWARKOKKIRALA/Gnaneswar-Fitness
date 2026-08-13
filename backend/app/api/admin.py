@@ -126,7 +126,9 @@ def list_media_files(
 @router.delete("/media/{filename}")
 def delete_media_file(
     filename: str,
-    current_admin: User = Depends(get_current_admin)
+    force: bool = False,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
 ):
     filepath = os.path.join(settings.UPLOAD_DIR, filename)
     if ".." in filename or "/" in filename or "\\" in filename:
@@ -134,7 +136,51 @@ def delete_media_file(
         
     if not os.path.exists(filepath):
         raise HTTPException(status_code=404, detail="File not found")
+
+    # Safety check if force is not requested
+    if not force:
+        rel_url = f"/uploads/{filename}"
+        uses = []
         
+        # Check ClientTransformations
+        from app.models.models import ClientTransformation, MyTransformation, TransformationVideo, BlogPost, WebsiteSetting
+        if db.query(ClientTransformation).filter(
+            (ClientTransformation.before_img.contains(filename)) |
+            (ClientTransformation.after_img.contains(filename)) |
+            (ClientTransformation.video_url.contains(filename))
+        ).first():
+            uses.append("Client Transformations")
+
+        # Check MyTransformations
+        if db.query(MyTransformation).filter(
+            (MyTransformation.before_img.contains(filename)) |
+            (MyTransformation.after_img.contains(filename)) |
+            (MyTransformation.after_img_2.contains(filename)) |
+            (MyTransformation.video_url.contains(filename))
+        ).first():
+            uses.append("My Transformations")
+
+        # Check Videos
+        if db.query(TransformationVideo).filter(
+            (TransformationVideo.thumbnail_url.contains(filename)) |
+            (TransformationVideo.video_url.contains(filename))
+        ).first():
+            uses.append("Transformation Videos")
+
+        # Check Blogs
+        if db.query(BlogPost).filter(BlogPost.cover_img.contains(filename)).first():
+            uses.append("Blog Posts")
+
+        # Check Settings
+        if db.query(WebsiteSetting).filter(WebsiteSetting.value.contains(filename)).first():
+            uses.append("Website Settings")
+
+        if uses:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot delete file '{filename}' because it is currently used by: {', '.join(uses)}. Remove references first or confirm forced delete."
+            )
+
     os.remove(filepath)
     return {"message": f"File {filename} deleted successfully"}
 

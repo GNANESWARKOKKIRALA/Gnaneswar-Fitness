@@ -194,3 +194,43 @@ def chat_with_ai_coach(
     except Exception as e:
         return {"reply": get_local_chat_reply(request.message)}
 
+@router.post("/public-chat")
+def public_chat_with_ai_coach(request: AIChatRequest):
+    system_prompt = (
+        "You are Gnaneswar Fit's official AI Bodybuilding & Diet Assistant. "
+        "Help website visitors understand bodybuilding workouts, nutrition, fat loss, muscle gain, "
+        "and details about Coach Gnaneswar Kokkirala and Gnaneswar Fit coaching programs. "
+        "Tone: scientific, encouraging, professional. Use clear markdown formatting."
+    )
+    
+    messages = [{"role": "system", "content": system_prompt}]
+    for msg in request.history:
+        messages.append({"role": msg.get("role", "user"), "content": msg.get("content", "")})
+    messages.append({"role": "user", "content": request.message})
+    
+    if not settings.GROQ_API_KEY:
+        return {"reply": get_local_chat_reply(request.message)}
+        
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {settings.GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "model": "llama3-8b-8192",
+        "messages": messages,
+        "temperature": 0.7,
+        "max_tokens": 800
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
+        if response.status_code != 200:
+            return {"reply": get_local_chat_reply(request.message)}
+        result = response.json()
+        return {"reply": result["choices"][0]["message"]["content"]}
+    except Exception as e:
+        return {"reply": get_local_chat_reply(request.message)}
+
+

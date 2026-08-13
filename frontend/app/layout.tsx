@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GymChatbot from "@/components/GymChatbot";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -17,8 +18,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Gnaneswar_Fit | Elite Bodybuilding Coaching & Diet Plans",
+  title: "Gnaneswar Fit | Elite Bodybuilding Coaching & Diet Plans",
   description: "Personalized coaching, workout blueprints, macro diet plans, and progress tracking designed for premium results by Gnaneswar Kokkirala.",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
@@ -35,6 +41,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <GymChatbot />
         </AuthProvider>
       </body>
     </html>

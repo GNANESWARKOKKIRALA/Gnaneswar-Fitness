@@ -80,25 +80,73 @@ class OrderResponse(BaseModel):
 class OrderRejectRequest(BaseModel):
     reason: str
 
-# Progress Entry schemas
-class ProgressEntryBase(BaseModel):
-    date: date
-    weight: float
-    measurements: Optional[str] = None # JSON string, e.g. {"chest": 40, "biceps": 15}
-    photo_url: Optional[str] = None
+# Client Transformation Schemas
+class ClientTransformationBase(BaseModel):
+    client_name: str
+    before_img: str
+    after_img: str
+    video_url: Optional[str] = None
+    story: str
+    duration: Optional[str] = "12 Weeks"
+    before_weight: Optional[str] = None
+    after_weight: Optional[str] = None
+    goal: Optional[str] = "fat loss"
+    is_published: bool = True
 
-class ProgressEntryCreate(ProgressEntryBase):
+class ClientTransformationCreate(ClientTransformationBase):
     pass
 
-class ProgressEntryResponse(ProgressEntryBase):
+class ClientTransformationResponse(ClientTransformationBase):
     id: int
-    user_id: int
     created_at: datetime
 
     class Config:
         from_attributes = True
 
-# Transformation schemas
+# My Transformation Schemas
+class MyTransformationBase(BaseModel):
+    title: str
+    story: str
+    before_img: str
+    after_img: str
+    after_img_2: Optional[str] = None
+    video_url: Optional[str] = None
+    duration: Optional[str] = "24 Weeks"
+    before_weight: Optional[str] = None
+    after_weight: Optional[str] = None
+    category: Optional[str] = "Bodybuilding Prep"
+    is_published: bool = True
+
+class MyTransformationCreate(MyTransformationBase):
+    pass
+
+class MyTransformationResponse(MyTransformationBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# Transformation Video Schemas
+class TransformationVideoBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    client_name: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    video_url: str
+    is_published: bool = True
+
+class TransformationVideoCreate(TransformationVideoBase):
+    pass
+
+class TransformationVideoResponse(TransformationVideoBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# Legacy Transformation schema
 class TransformationBase(BaseModel):
     before_img: str
     after_img: str
@@ -116,18 +164,55 @@ class TransformationResponse(TransformationBase):
 # Blog Post schemas
 class BlogPostBase(BaseModel):
     title: str
-    slug: str
+    slug: Optional[str] = None
     body: str
     cover_img: Optional[str] = None
+    category: Optional[str] = "Bodybuilding"
+    tags: Optional[str] = "fitness,nutrition"
+    author: Optional[str] = "Gnaneswar Kokkirala"
+    is_published: bool = True
+
+class BlogPostCreate(BlogPostBase):
+    pass
 
 class BlogPostResponse(BlogPostBase):
     id: int
+    slug: str
     published_at: datetime
+    created_at: datetime
 
     class Config:
         from_attributes = True
 
-# CMS content schema
+# Media Asset schemas
+class MediaAssetBase(BaseModel):
+    filename: Optional[str] = None
+    file_path: str
+    file_size: Optional[int] = None
+    mime_type: Optional[str] = None
+    type: str = "image"
+
+class MediaAssetResponse(MediaAssetBase):
+    id: int
+    uploaded_by: Optional[int] = None
+    uploaded_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# Website Setting schemas
+class WebsiteSettingBase(BaseModel):
+    key: str
+    value: Optional[str] = None
+
+class WebsiteSettingResponse(WebsiteSettingBase):
+    id: int
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# CMS content & contact schemas
 class CMSContentUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -154,7 +239,7 @@ class ContactMessageResponse(BaseModel):
 class PlanTemplateCreate(BaseModel):
     title: str
     description: Optional[str] = None
-    type: str # 'workout' or 'diet'
+    type: str
     content: str
     file_url: Optional[str] = None
 
@@ -171,7 +256,7 @@ class AssignedPlanCreate(BaseModel):
     template_id: Optional[int] = None
     title: str
     description: Optional[str] = None
-    type: str # 'workout' or 'diet'
+    type: str
     content: str
     file_url: Optional[str] = None
     schedule_type: Optional[str] = "daily"
@@ -206,7 +291,7 @@ class ChatMessageCreate(BaseModel):
     receiver_id: int
     content: Optional[str] = None
     file_url: Optional[str] = None
-    file_type: Optional[str] = None # 'image', 'pdf', 'voice'
+    file_type: Optional[str] = None
 
 class ChatMessageResponse(BaseModel):
     id: int
@@ -232,4 +317,3 @@ class AnnouncementResponse(AnnouncementCreate):
 
     class Config:
         from_attributes = True
-

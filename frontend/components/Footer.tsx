@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Dumbbell } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -8,21 +7,23 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo & Slogan */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Dumbbell className="h-6 w-6 text-gold" />
-              <span className="text-xl font-black tracking-wider text-foreground">
-                Gnaneswar<span className="text-gold font-normal">_Fit</span>
+            <div className="flex items-center space-x-3">
+              <div className="h-10 w-10 rounded-xl overflow-hidden border border-gold/40 shadow-[0_0_15px_rgba(229,169,60,0.2)]">
+                <img src="/logo.png" alt="Gnaneswar Fit Logo" className="h-full w-full object-cover" />
+              </div>
+              <span className="text-xl font-black tracking-wider text-foreground uppercase">
+                Gnaneswar<span className="gold-gradient-text">FIT</span>
               </span>
             </div>
-            <p className="text-sm text-gray-400">
-              Elite bodybuilding coaching & optimized diet plans designed to push you beyond your limits. Achieve gravity-defying transformations.
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Elite bodybuilding coaching, customized progressive overload routines, and science-backed diet plans designed for maximum results by Coach Gnaneswar Kokkirala.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold text-gold uppercase tracking-wider mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-sm font-bold text-gold uppercase tracking-wider mb-4">Navigation</h3>
+            <ul className="space-y-2.5">
               <li>
                 <Link href="/" className="text-sm text-gray-400 hover:text-white transition-colors">Home</Link>
               </li>
@@ -35,39 +36,41 @@ export default function Footer() {
               <li>
                 <Link href="/pricing" className="text-sm text-gray-400 hover:text-white transition-colors">Pricing Options</Link>
               </li>
+              <li>
+                <Link href="/blog" className="text-sm text-gray-400 hover:text-white transition-colors">Fitness Blog</Link>
+              </li>
             </ul>
           </div>
 
           {/* Core Resources */}
           <div>
-            <h3 className="text-sm font-semibold text-gold uppercase tracking-wider mb-4">Resources</h3>
-            <ul className="space-y-2">
+            <h3 className="text-sm font-bold text-gold uppercase tracking-wider mb-4">Resources</h3>
+            <ul className="space-y-2.5">
               <li>
-                <Link href="/transformations" className="text-sm text-gray-400 hover:text-white transition-colors">Success Stories</Link>
+                <Link href="/transformations" className="text-sm text-gray-400 hover:text-white transition-colors">Client & Self Proof</Link>
               </li>
               <li>
                 <Link href="/contact" className="text-sm text-gray-400 hover:text-white transition-colors">Support & Contact</Link>
               </li>
               <li>
-                <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors">Client Login</Link>
+                <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors">Admin Login</Link>
               </li>
             </ul>
           </div>
 
           {/* Contact Details */}
           <div>
-            <h3 className="text-sm font-semibold text-gold uppercase tracking-wider mb-4">Get In Touch</h3>
-            <p className="text-sm text-gray-400 mb-1">Email: anjaniprasad176@gmail.com</p>
-            <p className="text-sm text-gray-400 mb-1">WhatsApp: +91 6309764875</p>
-            <p className="text-sm text-gray-400 mb-1">Instagram: @gnaneswar_bb</p>
+            <h3 className="text-sm font-bold text-gold uppercase tracking-wider mb-4">Get In Touch</h3>
+            <p className="text-sm text-gray-400 mb-1.5">Email: coach@gnaneswarfit.com</p>
+            <p className="text-sm text-gray-400 mb-1.5">WhatsApp: +91 98765 43210</p>
+            <p className="text-sm text-gray-400 mb-1.5">Instagram: @gnaneswar_fit</p>
             <p className="text-sm text-gray-400">Location: Hyderabad, India</p>
           </div>
         </div>
         
-        <div className="border-t border-card-border mt-8 pt-8 text-center">
-          <p className="text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} Gnaneswar_Fit. All rights reserved. Created for Gnaneswar Kokkirala.
-          </p>
+        <div className="border-t border-card-border mt-10 pt-8 text-center flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500">
+          <p>&copy; {new Date().getFullYear()} Gnaneswar Fit. All rights reserved.</p>
+          <p className="mt-2 sm:mt-0">Built for Coach Gnaneswar Kokkirala</p>
         </div>
       </div>
     </footer>
