@@ -126,19 +126,19 @@ export default function Home() {
       
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[92vh] flex items-center justify-center py-20 overflow-hidden">
-        {/* Gym Workspace Background - Clearly Visible */}
+        {/* Gym Workspace Background - HIGH VISIBILITY */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 scale-105 animate-float-slow"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-55 scale-105"
           style={{ 
             backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&q=90')" 
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/70 to-[#050505]/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/90 via-[#050505]/50 to-[#050505]/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
         
-        {/* Cyan Light Streak Overlay */}
-        <div className="cyan-light-streak" />
-        <div className="absolute top-1/4 left-10 w-96 h-96 bg-[#00BFFF]/10 rounded-full blur-[140px] pointer-events-none animate-pulse" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#008CFF]/10 rounded-full blur-[160px] pointer-events-none" />
+        {/* Cyan Ambient Light */}
+        <div className="absolute top-1/4 left-10 w-80 h-80 bg-[#00BFFF]/8 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-10 right-10 w-72 h-72 bg-[#008CFF]/6 rounded-full blur-[140px] pointer-events-none" />
 
         {/* Hero Content */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
