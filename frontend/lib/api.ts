@@ -24,8 +24,9 @@ function getHeaders(token?: string, isMultipart = false) {
   if (!isMultipart) {
     headers['Content-Type'] = 'application/json';
   }
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  const authToken = token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
   }
   return headers;
 }

@@ -1,7 +1,7 @@
 1:"$Sreact.fragment"
-2:I[89103,["/_next/static/chunks/2v9h30yz_q-li.js","/_next/static/chunks/14mrh2-p_w84d.js","/_next/static/chunks/05wms94yotydq.js"],"default"]
-4:I[97367,["/_next/static/chunks/2v9h30yz_q-li.js","/_next/static/chunks/14mrh2-p_w84d.js"],"OutletBoundary"]
+2:I[89103,["/_next/static/chunks/3z5ypnv21c920.js","/_next/static/chunks/14mrh2-p_w84d.js","/_next/static/chunks/05wms94yotydq.js"],"default"]
+4:I[97367,["/_next/static/chunks/3z5ypnv21c920.js","/_next/static/chunks/14mrh2-p_w84d.js"],"OutletBoundary"]
 5:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"params":"$@3"}],[["$","script","script-0",{"src":"/_next/static/chunks/05wms94yotydq.js","async":true}]],["$","$L4",null,{"children":["$","$5",null,{"name":"Next.MetadataOutlet","children":"$@6"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"VflUyvOOBhJ0tvO_jVMX0"}
+0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"params":"$@3"}],[["$","script","script-0",{"src":"/_next/static/chunks/05wms94yotydq.js","async":true}]],["$","$L4",null,{"children":["$","$5",null,{"name":"Next.MetadataOutlet","children":"$@6"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"_mx7tRoHkk-KKhXax868U"}
 3:{"slug":"truth-about-fat-loss-caloric-deficit"}
 6:null
