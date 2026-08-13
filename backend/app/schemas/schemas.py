@@ -80,6 +80,24 @@ class OrderResponse(BaseModel):
 class OrderRejectRequest(BaseModel):
     reason: str
 
+# Progress Entry schemas
+class ProgressEntryBase(BaseModel):
+    date: date
+    weight: float
+    measurements: Optional[str] = None
+    photo_url: Optional[str] = None
+
+class ProgressEntryCreate(ProgressEntryBase):
+    pass
+
+class ProgressEntryResponse(ProgressEntryBase):
+    id: int
+    user_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 # Client Transformation Schemas
 class ClientTransformationBase(BaseModel):
     client_name: str
