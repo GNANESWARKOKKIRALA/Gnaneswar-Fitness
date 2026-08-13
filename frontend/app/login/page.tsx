@@ -56,9 +56,9 @@ function LoginContent() {
   return (
     <div className="py-24 flex items-center justify-center min-h-[80vh] px-4">
       <div className="glass-panel rounded-3xl border border-card-border p-8 w-full max-w-md space-y-6 shadow-2xl relative">
-        {/* Decorative elements */}
-        <div className="absolute -top-10 left-1/2 -translate-x-1/2 h-20 w-20 bg-gold/10 border border-gold/20 rounded-full flex items-center justify-center text-gold shadow-lg">
-          <ShieldCheck className="h-10 w-10" />
+        {/* Logo Badge */}
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 h-20 w-20 rounded-2xl overflow-hidden border border-gold/40 shadow-[0_0_20px_rgba(229,169,60,0.4)] bg-[#050507]">
+          <img src="/logo.png" alt="Gnaneswar Fit Logo" className="h-full w-full object-cover" />
         </div>
 
         <div className="text-center pt-8">
