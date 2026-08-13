@@ -20,13 +20,12 @@ export default function About() {
       {/* Grid: Bio & Image */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         <div className="lg:col-span-5 flex justify-center">
-          <div className="relative w-80 h-96 sm:w-96 sm:h-[480px] rounded-3xl overflow-hidden border border-[#00BFFF]/30 card-classic logo-shine shadow-2xl">
+          <div className="relative w-72 h-72 sm:w-96 sm:h-96 rounded-full overflow-hidden shadow-[0_0_35px_rgba(0,191,255,0.4)] border-4 border-[#00BFFF] logo-shine bg-[#0B0F12]">
             <img 
               src="/coach.jpg" 
               alt="Coach Gnaneswar" 
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover hover:scale-110 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
           </div>
         </div>
 

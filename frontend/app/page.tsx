@@ -119,14 +119,14 @@ export default function Home() {
       
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[92vh] flex items-center justify-center py-20 overflow-hidden">
-        {/* Gym Background with Dark Gradient */}
+        {/* Old School Gym Background with Dark Gradient */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 scale-105 animate-float-slow"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 scale-105 animate-float-slow"
           style={{ 
-            backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80')" 
+            backgroundImage: "url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&q=80')" 
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/85 to-[#050505]/50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-[#050505]/40" />
         
         {/* Cyan Light Streak Overlay */}
         <div className="cyan-light-streak" />
@@ -171,21 +171,21 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Hero Coach Photo Showcase */}
-          <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
-            <div className="relative w-80 h-96 sm:w-96 sm:h-[480px] rounded-3xl overflow-hidden shadow-2xl border border-[#1C2329] group hover:border-[#00BFFF] transition-all duration-500 card-classic logo-shine">
+          {/* Hero Coach Circle DP Showcase */}
+          <div className="lg:col-span-5 relative flex flex-col items-center justify-center space-y-4">
+            <div className="relative w-72 h-72 sm:w-96 sm:h-96 rounded-full overflow-hidden shadow-[0_0_35px_rgba(0,191,255,0.4)] border-4 border-[#00BFFF] group hover:scale-105 transition-all duration-500 logo-shine bg-[#0B0F12]">
               <img 
                 src="/coach.jpg" 
                 alt="Coach Gnaneswar"
-                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
+                className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
-              
-              <div className="absolute bottom-6 left-6 right-6 glass-panel rounded-2xl p-4 border border-[#00BFFF]/30">
-                <p className="text-[10px] uppercase tracking-widest text-[#00BFFF] font-extrabold">Head Coach & Founder</p>
-                <h4 className="text-xl font-black font-display text-white">GNANESWAR KOKKIRALA</h4>
-                <p className="text-xs text-[#8B949E]">Certified Strength & Conditioning Specialist</p>
-              </div>
+            </div>
+
+            {/* Coach Label Badge */}
+            <div className="glass-panel rounded-2xl px-6 py-3 border border-[#00BFFF]/40 text-center shadow-xl">
+              <p className="text-[10px] uppercase tracking-widest text-[#00BFFF] font-extrabold font-display">Head Coach & Founder</p>
+              <h4 className="text-lg font-black font-display text-white">GNANESWAR KOKKIRALA</h4>
+              <p className="text-[11px] text-[#8B949E]">Certified Strength & Conditioning Specialist</p>
             </div>
           </div>
         </div>
