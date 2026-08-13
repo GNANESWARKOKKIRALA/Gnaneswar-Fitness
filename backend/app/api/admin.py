@@ -6,8 +6,9 @@ from pydantic import BaseModel
 import shutil
 from app.models.database import get_db
 from app.models.models import Order, User, Program, Transformation
-from app.schemas.schemas import OrderResponse, OrderRejectRequest, ProgramResponse, ProgramCreate, UserResponse
+from app.schemas.schemas import OrderResponse, OrderRejectRequest, ProgramResponse, ProgramCreate, UserResponse, UserCreate
 from app.api.deps import get_current_admin
+from app.core.security import get_password_hash
 import os
 from app.core.config import settings
 
@@ -270,3 +271,73 @@ def update_user_details(
     db.commit()
     db.refresh(user)
     return user
+
+@router.post("/users", response_model=UserResponse)
+def create_user(
+    user_in: UserCreate,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    duplicate = db.query(User).filter(User.email == user_in.email).first()
+    if duplicate:
+        raise HTTPException(status_code=400, detail="Email already in use")
+        
+    db_user = User(
+        email=user_in.email,
+        name=user_in.name,
+        phone=user_in.phone,
+        password_hash=get_password_hash(user_in.password),
+        role="user"
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+@router.delete("/users/{user_id}")
+def delete_user(
+    user_id: int,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    if user.role == "admin":
+        raise HTTPException(status_code=403, detail="Cannot delete an admin user")
+        
+    from app.models.models import AssignedPlan, DailyLog, ProgressEntry
+    
+    # Delete associated records
+    db.query(AssignedPlan).filter(AssignedPlan.user_id == user_id).delete()
+    db.query(DailyLog).filter(DailyLog.user_id == user_id).delete()
+    db.query(ProgressEntry).filter(ProgressEntry.user_id == user_id).delete()
+    
+    db.delete(user)
+    db.commit()
+    return {"message": "User deleted successfully"}
+
+@router.get("/stats")
+def get_admin_stats(
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    from app.models.models import BlogPost, ClientTransformation, TransformationVideo, AssignedPlan
+    
+    total_clients = db.query(User).filter(User.role == "user").count()
+    active_clients = db.query(User).filter(User.role == "user", User.is_active == True).count()
+    total_blogs = db.query(BlogPost).count()
+    total_transformations = db.query(ClientTransformation).count()
+    
+    total_workout_plans = db.query(AssignedPlan).filter(AssignedPlan.type == "workout").count()
+    total_diet_plans = db.query(AssignedPlan).filter(AssignedPlan.type == "diet").count()
+    
+    return {
+        "total_clients": total_clients,
+        "active_clients": active_clients,
+        "total_blogs": total_blogs,
+        "total_transformations": total_transformations,
+        "total_workout_plans": total_workout_plans,
+        "total_diet_plans": total_diet_plans
+    }

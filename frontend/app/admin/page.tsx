@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import ClientManagement from './ClientManagement';
 import { useAuth } from '@/app/context/AuthContext';
 import { apiFetch, resolveMediaUrl } from '@/lib/api';
 import { 
@@ -35,7 +36,9 @@ import {
   LogOut,
   RefreshCw,
   Eye,
-  EyeOff
+  EyeOff,
+  Activity,
+  Apple
 } from 'lucide-react';
 
 interface BlogPost {
@@ -107,6 +110,7 @@ export default function AdminDashboard() {
   >('overview');
 
   const [loading, setLoading] = useState(true);
+  const [adminStats, setAdminStats] = useState<any>(null);
   const [actionMessage, setActionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Data lists
@@ -789,34 +793,84 @@ export default function AdminDashboard() {
         </div>
 
         {/* TAB 1: OVERVIEW */}
+        {activeTab === 'clients' && <ClientManagement />}
+
+        
         {activeTab === 'overview' && (
-          <div className="space-y-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="glass-panel p-6 rounded-3xl border border-card-border space-y-2">
-                <p className="text-[10px] text-gold font-bold uppercase tracking-wider">Total Blog Posts</p>
-                <p className="text-3xl font-black text-white">{blogs.length}</p>
-                <p className="text-[11px] text-gray-400">{blogs.filter(b => b.is_published).length} Published</p>
-              </div>
-
-              <div className="glass-panel p-6 rounded-3xl border border-card-border space-y-2">
-                <p className="text-[10px] text-gold font-bold uppercase tracking-wider">Client Transformations</p>
-                <p className="text-3xl font-black text-white">{clientTrans.length}</p>
-                <p className="text-[11px] text-gray-400">{clientTrans.filter(c => c.is_published).length} Published</p>
-              </div>
-
-              <div className="glass-panel p-6 rounded-3xl border border-card-border space-y-2">
-                <p className="text-[10px] text-gold font-bold uppercase tracking-wider">Transformation Videos</p>
-                <p className="text-3xl font-black text-white">{videos.length}</p>
-                <p className="text-[11px] text-gray-400">{videos.filter(v => v.is_published).length} Active</p>
-              </div>
-
-              <div className="glass-panel p-6 rounded-3xl border border-card-border space-y-2">
-                <p className="text-[10px] text-gold font-bold uppercase tracking-wider">Media Assets</p>
-                <p className="text-3xl font-black text-white">{mediaFiles.length}</p>
-                <p className="text-[11px] text-gray-400">Uploaded Photos/Videos</p>
-              </div>
+          <div className="space-y-8 fade-in max-w-7xl mx-auto">
+            
+            {/* Header */}
+            <div>
+              <h2 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+                <LayoutDashboard className="h-8 w-8 text-[#00BFFF]" />
+                Dashboard Overview
+              </h2>
+              <p className="text-gray-400 mt-2">Welcome to your command center, coach.</p>
             </div>
 
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              
+              <div className="bg-[#0B0F12] p-6 rounded-2xl border border-[#1C2329] flex justify-between items-center group hover:border-[#00BFFF]/50 transition-all">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Clients</p>
+                  <p className="text-4xl font-bebas tracking-wider text-white">{adminStats?.total_clients || 0}</p>
+                </div>
+                <div className="w-14 h-14 rounded-full bg-[#1C2329] flex items-center justify-center border border-[#333] group-hover:bg-[#00BFFF]/10 group-hover:border-[#00BFFF]/30 transition-all">
+                  <Users className="w-7 h-7 text-gray-400 group-hover:text-[#00BFFF]" />
+                </div>
+              </div>
+
+              <div className="bg-[#0B0F12] p-6 rounded-2xl border border-[#1C2329] flex justify-between items-center group hover:border-[#00BFFF]/50 transition-all shadow-[0_0_15px_rgba(0,191,255,0.05)]">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Active Clients</p>
+                  <p className="text-4xl font-bebas tracking-wider text-[#00BFFF] drop-shadow-[0_0_8px_rgba(0,191,255,0.5)]">{adminStats?.active_clients || 0}</p>
+                </div>
+                <div className="w-14 h-14 rounded-full bg-[#00BFFF]/10 flex items-center justify-center border border-[#00BFFF]/30">
+                  <Activity className="w-7 h-7 text-[#00BFFF]" />
+                </div>
+              </div>
+
+              <div className="bg-[#0B0F12] p-6 rounded-2xl border border-[#1C2329] flex justify-between items-center group hover:border-[#00BFFF]/50 transition-all">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Workout Plans</p>
+                  <p className="text-4xl font-bebas tracking-wider text-white">{adminStats?.total_workout_plans || 0}</p>
+                </div>
+                <div className="w-14 h-14 rounded-full bg-[#1C2329] flex items-center justify-center border border-[#333] group-hover:bg-[#00BFFF]/10 group-hover:border-[#00BFFF]/30 transition-all">
+                  <Dumbbell className="w-7 h-7 text-gray-400 group-hover:text-[#00BFFF]" />
+                </div>
+              </div>
+
+              <div className="bg-[#0B0F12] p-6 rounded-2xl border border-[#1C2329] flex justify-between items-center group hover:border-[#00BFFF]/50 transition-all">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Diet Plans</p>
+                  <p className="text-4xl font-bebas tracking-wider text-white">{adminStats?.total_diet_plans || 0}</p>
+                </div>
+                <div className="w-14 h-14 rounded-full bg-[#1C2329] flex items-center justify-center border border-[#333] group-hover:bg-[#00BFFF]/10 group-hover:border-[#00BFFF]/30 transition-all">
+                  <Apple className="w-7 h-7 text-gray-400 group-hover:text-[#00BFFF]" />
+                </div>
+              </div>
+
+              <div className="bg-[#0B0F12] p-6 rounded-2xl border border-[#1C2329] flex justify-between items-center group hover:border-[#00BFFF]/50 transition-all">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Blog Posts</p>
+                  <p className="text-4xl font-bebas tracking-wider text-white">{adminStats?.total_blogs || 0}</p>
+                </div>
+                <div className="w-14 h-14 rounded-full bg-[#1C2329] flex items-center justify-center border border-[#333] group-hover:bg-[#00BFFF]/10 group-hover:border-[#00BFFF]/30 transition-all">
+                  <FileText className="w-7 h-7 text-gray-400 group-hover:text-[#00BFFF]" />
+                </div>
+              </div>
+
+              <div className="bg-[#0B0F12] p-6 rounded-2xl border border-[#1C2329] flex justify-between items-center group hover:border-[#00BFFF]/50 transition-all">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Transformations</p>
+                  <p className="text-4xl font-bebas tracking-wider text-[#00BFFF]">{adminStats?.total_transformations || 0}</p>
+                </div>
+                <div className="w-14 h-14 rounded-full bg-[#00BFFF]/10 flex items-center justify-center border border-[#00BFFF]/30">
+                  <Sparkles className="w-7 h-7 text-[#00BFFF]" />
+                </div>
+              </div>
+            </div>
             {/* Quick Actions Grid */}
             <div className="glass-panel p-8 rounded-3xl border border-card-border space-y-6">
               <h3 className="text-lg font-extrabold text-white flex items-center space-x-2">
