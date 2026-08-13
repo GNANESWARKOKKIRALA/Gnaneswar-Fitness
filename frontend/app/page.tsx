@@ -126,14 +126,14 @@ export default function Home() {
       
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[92vh] flex items-center justify-center py-20 overflow-hidden">
-        {/* Old School Gym Background with Dark Gradient */}
+        {/* Gym Workspace Background - Clearly Visible */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 scale-105 animate-float-slow"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 scale-105 animate-float-slow"
           style={{ 
-            backgroundImage: "url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1600&q=80')" 
+            backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&q=90')" 
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-[#050505]/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/70 to-[#050505]/30" />
         
         {/* Cyan Light Streak Overlay */}
         <div className="cyan-light-streak" />

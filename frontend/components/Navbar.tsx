@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
 import { useState } from 'react';
-import { Menu, X, Shield, LayoutDashboard, LogOut, Dumbbell, Zap } from 'lucide-react';
+import { Menu, X, Shield, LayoutDashboard, LogOut, Dumbbell, Zap, CreditCard } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -16,19 +16,20 @@ export default function Navbar() {
     { name: 'About', href: '/about' },
     { name: 'Transformations', href: '/transformations' },
     { name: 'Workouts', href: '/#workouts' },
+    { name: 'Pricing', href: '/pricing' },
     { name: 'Blog', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-[#00BFFF]/25 shadow-2xl backdrop-blur-xl bg-[#050505]/90 transition-all duration-300">
+    <nav className="relative sticky top-0 z-50 border-b border-[#00BFFF]/25 shadow-2xl backdrop-blur-xl bg-[#050505]/90 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group logo-shine">
-              <div className="relative h-11 w-11 rounded-xl overflow-hidden border border-[#00BFFF]/40 shadow-[0_0_15px_rgba(0,191,255,0.25)] group-hover:scale-105 group-hover:border-[#00BFFF] transition-all duration-300 bg-[#0B0F12]">
+              <div className="relative h-11 w-11 rounded-xl overflow-hidden border border-[#00BFFF]/60 shadow-[0_0_18px_rgba(0,191,255,0.4)] group-hover:scale-105 group-hover:border-[#00BFFF] transition-all duration-300 bg-[#0B0F12] ring-1 ring-[#00BFFF]/30 animate-pulse">
                 <img 
                   src="/logo.png?v=2" 
                   alt="Gnaneswar Fit Logo" 
@@ -54,15 +55,18 @@ export default function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-xs font-bold uppercase tracking-wider transition-all duration-200 relative py-1 ${
+                  className={`text-xs font-bold uppercase tracking-wider transition-all duration-200 relative py-1 flex items-center gap-1.5 hover:-translate-y-0.5 ${
                     isActive
                       ? 'text-[#00BFFF] font-extrabold'
                       : 'text-gray-300 hover:text-[#00BFFF]'
                   }`}
                 >
-                  {link.name}
+                  {link.name === 'Pricing' && (
+                    <CreditCard className="h-3.5 w-3.5 text-[#00BFFF]" />
+                  )}
+                  <span>{link.name}</span>
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#00BFFF] rounded-full shadow-[0_0_8px_#00BFFF]" />
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#00BFFF] shadow-[0_0_10px_#00BFFF,0_0_20px_#00BFFF] animate-pulse" />
                   )}
                 </Link>
               );
@@ -127,20 +131,38 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Animated Gradient Line */}
+      <div className="absolute bottom-0 left-0 w-full h-[2px] overflow-hidden">
+        <div className="h-full w-[200%] bg-gradient-to-r from-transparent via-[#00BFFF] to-transparent animate-[shimmer_3s_ease-in-out_infinite]" />
+      </div>
+
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden glass-panel border-t border-[#1C2329] bg-[#050505]/95 backdrop-blur-xl">
           <div className="px-4 pt-3 pb-6 space-y-2 text-center">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.name}
-                href={link.href} 
-                onClick={() => setIsOpen(false)}
-                className="block px-3 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider text-gray-300 hover:text-[#00BFFF] hover:bg-[#111820]"
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link 
+                  key={link.name}
+                  href={link.href} 
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-200 ${
+                    isActive
+                      ? 'text-[#00BFFF] bg-[#00BFFF]/10 border border-[#00BFFF]/30'
+                      : 'text-gray-300 hover:text-[#00BFFF] hover:bg-[#111820]'
+                  }`}
+                >
+                  {link.name === 'Pricing' && (
+                    <CreditCard className="h-4 w-4 text-[#00BFFF]" />
+                  )}
+                  <span>{link.name}</span>
+                  {isActive && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00BFFF] shadow-[0_0_8px_#00BFFF]" />
+                  )}
+                </Link>
+              );
+            })}
             
             <div className="pt-4 border-t border-[#1C2329] flex flex-col items-center space-y-3">
               {user ? (
