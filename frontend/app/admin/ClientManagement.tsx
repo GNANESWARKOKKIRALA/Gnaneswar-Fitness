@@ -6,6 +6,7 @@ import {
   Users, Check, X, Search, Edit, Trash2, Calendar, Activity, 
   ChevronRight, Dumbbell, Apple, Plus, ArrowLeft, CheckCircle2, AlertCircle
 } from 'lucide-react';
+import PlanBuilder from './PlanBuilder';
 
 interface Client {
   id: number;
@@ -329,18 +330,15 @@ export default function ClientManagement() {
                     value={assignForm.date_assigned} onChange={e => setAssignForm({...assignForm, date_assigned: e.target.value})}
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Plan Content (JSON format required by frontend)</label>
-                  <textarea 
-                    required rows={8}
-                    className="w-full bg-[#050505] border border-[#1C2329] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00BFFF] transition-colors font-mono text-xs"
-                    value={assignForm.content} onChange={e => setAssignForm({...assignForm, content: e.target.value})}
-                    placeholder={assignForm.type === 'workout' 
-                      ? '[\n  {\n    "day": "Day 1",\n    "focus": "Chest",\n    "exercises": [\n      {"name": "Bench Press", "sets": 4, "reps": "8-10"}\n    ]\n  }\n]' 
-                      : '[\n  {\n    "day": "Day 1",\n    "meals": [\n      {"name": "Breakfast", "items": "Oats", "protein": 30, "carbs": 50, "fats": 10}\n    ]\n  }\n]'}
+                <div className="max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Plan Content Builder</label>
+                  <PlanBuilder 
+                    type={assignForm.type} 
+                    value={assignForm.content} 
+                    onChange={(val) => setAssignForm({...assignForm, content: val})} 
                   />
                 </div>
-                <button type="submit" className="w-full bg-[#00BFFF] text-black font-bold uppercase py-4 rounded-xl hover:bg-white transition-all">
+                <button type="submit" className="w-full bg-[#00BFFF] text-black font-bold uppercase py-4 rounded-xl hover:bg-white transition-all mt-4">
                   Assign Plan
                 </button>
               </form>
