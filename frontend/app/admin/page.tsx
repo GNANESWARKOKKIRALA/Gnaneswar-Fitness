@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ClientManagement from './ClientManagement';
+import HomepageCMS from './HomepageCMS';
 import { useAuth } from '@/app/context/AuthContext';
 import { apiFetch, resolveMediaUrl } from '@/lib/api';
 import { 
@@ -106,7 +107,7 @@ export default function AdminDashboard() {
 
   // Selected Dashboard Tab
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'blogs' | 'client-transformations' | 'my-transformations' | 'videos' | 'media' | 'chat' | 'settings' | 'orders' | 'clients'
+    'overview' | 'homepage' | 'blogs' | 'client-transformations' | 'my-transformations' | 'videos' | 'media' | 'chat' | 'settings' | 'orders' | 'clients'
   >('overview');
 
   const [loading, setLoading] = useState(true);
@@ -623,6 +624,20 @@ export default function AdminDashboard() {
             </button>
 
             <button
+              onClick={() => setActiveTab('homepage')}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ${
+                activeTab === 'homepage'
+                  ? 'cyan-gradient-bg text-[#050505] font-extrabold shadow-[0_0_15px_rgba(0,191,255,0.4)]'
+                  : 'text-gray-400 hover:text-white hover:bg-[#111820]'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Website Content (CMS)</span>
+              </div>
+            </button>
+
+            <button
               onClick={() => setActiveTab('blogs')}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 ${
                 activeTab === 'blogs'
@@ -809,6 +824,8 @@ export default function AdminDashboard() {
         {activeTab === 'clients' && <ClientManagement />}
 
         
+        {activeTab === 'homepage' && <HomepageCMS />}
+
         {activeTab === 'overview' && (
           <div className="space-y-8 fade-in max-w-7xl mx-auto">
             

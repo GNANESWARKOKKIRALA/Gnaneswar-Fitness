@@ -27,6 +27,7 @@ export default function Home() {
   const [transformations, setTransformations] = useState<any[]>([]);
   const [selectedGoal, setSelectedGoal] = useState('ALL');
   const [stats, setStats] = useState<{ clients_count: number; transformations_count: number }>({ clients_count: 0, transformations_count: 0 });
+  const [homepageSections, setHomepageSections] = useState<any[]>([]);
   
   // Workouts State
   const [selectedWorkoutCategory, setSelectedWorkoutCategory] = useState('Chest');
@@ -43,13 +44,17 @@ export default function Home() {
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const [data, statsData] = await Promise.all([
+        const [data, statsData, sectionsData] = await Promise.all([
           apiFetch('/api/client-transformations').catch(() => []),
-          apiFetch('/api/client-transformations/public-stats').catch(() => ({ clients_count: 0, transformations_count: 0 }))
+          apiFetch('/api/client-transformations/public-stats').catch(() => ({ clients_count: 0, transformations_count: 0 })),
+          apiFetch('/api/homepage').catch(() => [])
         ]);
         setTransformations(data || []);
         if (statsData) {
           setStats(statsData);
+        }
+        if (sectionsData) {
+          setHomepageSections(sectionsData);
         }
       } catch (err) {
         console.error('Error loading homepage data:', err);
@@ -121,6 +126,11 @@ export default function Home() {
     ? transformations
     : transformations.filter(t => t.goal?.toUpperCase().includes(selectedGoal.replace(' ', '')));
 
+  const getSection = (id: string) => homepageSections.find(s => s.section_id === id);
+  const hero = getSection('hero');
+  const about = getSection('about');
+  const cta = getSection('cta');
+
   return (
     <div className="relative w-full overflow-hidden bg-[#050505] text-[#FFFFFF]">
       
@@ -130,7 +140,7 @@ export default function Home() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-55 scale-105"
           style={{ 
-            backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&q=90')" 
+            backgroundImage: `url('${hero?.image_url ? resolveMediaUrl(hero.image_url) : "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&q=90"}')` 
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/90 via-[#050505]/50 to-[#050505]/30" />
@@ -145,28 +155,35 @@ export default function Home() {
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="inline-flex items-center space-x-2 bg-[#00BFFF]/10 border border-[#00BFFF]/30 px-4 py-1.5 rounded-full text-[#00BFFF] text-xs font-extrabold tracking-widest uppercase">
               <Zap className="h-4 w-4 text-[#00BFFF]" />
-              <span>Official Gnaneswar Fit Coaching</span>
+              <span>{hero?.subtitle || 'Official Gnaneswar Fit Coaching'}</span>
             </div>
             
-            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black font-display tracking-tight leading-none text-white">
-              BUILD YOUR <br />
-              <span className="cyan-gradient-text">STRONGEST VERSION</span>
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black font-display tracking-tight leading-none text-white whitespace-pre-line">
+              {hero?.title ? (
+                hero.title.includes('STRONGEST VERSION') ? (
+                  <>BUILD YOUR <br /><span className="cyan-gradient-text">STRONGEST VERSION</span></>
+                ) : (
+                  hero.title
+                )
+              ) : (
+                <>BUILD YOUR <br /><span className="cyan-gradient-text">STRONGEST VERSION</span></>
+              )}
             </h1>
             
-            <p className="text-lg sm:text-xl text-[#E5E7EB] font-semibold max-w-xl leading-relaxed">
-              Train harder. Eat smarter. Improve every day.
+            <p className="text-lg sm:text-xl text-[#E5E7EB] font-semibold max-w-xl leading-relaxed whitespace-pre-line">
+              {hero?.content ? hero.content.split('\n')[0] : 'Train harder. Eat smarter. Improve every day.'}
             </p>
 
-            <p className="text-xs sm:text-sm text-[#8B949E] max-w-lg leading-relaxed">
-              Evidence-backed progressive overload blueprints, macro-modeled nutrition plans, and 1-on-1 contest prep designed exclusively by Coach Gnaneswar Kokkirala.
+            <p className="text-xs sm:text-sm text-[#8B949E] max-w-lg leading-relaxed whitespace-pre-line">
+              {hero?.content ? hero.content.split('\n').slice(1).join('\n') : 'Evidence-backed progressive overload blueprints, macro-modeled nutrition plans, and 1-on-1 contest prep designed exclusively by Coach Gnaneswar Kokkirala.'}
             </p>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
               <Link 
-                href="/contact" 
+                href={hero?.cta_url || "/contact"} 
                 className="btn-primary text-center px-9 py-4 text-sm font-extrabold flex items-center justify-center space-x-2"
               >
-                <span>START TRAINING</span>
+                <span>{hero?.cta_text?.toUpperCase() || 'START TRAINING'}</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link 
@@ -203,12 +220,12 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-[#00BFFF] font-display">About The Brand</span>
+              <span className="text-xs font-extrabold uppercase tracking-widest text-[#00BFFF] font-display">{about?.subtitle || 'About The Brand'}</span>
               <h2 className="text-4xl sm:text-6xl font-black font-display text-white leading-tight">
-                ELITE COACHING FOR <span className="cyan-gradient-text">NATURAL HYPERTROPHY</span>
+                {about?.title || <>ELITE COACHING FOR <span className="cyan-gradient-text">NATURAL HYPERTROPHY</span></>}
               </h2>
-              <p className="text-[#8B949E] text-sm sm:text-base leading-relaxed">
-                At <strong className="text-white">Gnaneswar Fit</strong>, we eliminate guesswork from bodybuilding. Every training split, progressive loading target, and macronutrient recommendation is calculated specifically for your body type and performance goals.
+              <p className="text-[#8B949E] text-sm sm:text-base leading-relaxed whitespace-pre-line">
+                {about?.content || <>At <strong className="text-white">Gnaneswar Fit</strong>, we eliminate guesswork from bodybuilding. Every training split, progressive loading target, and macronutrient recommendation is calculated specifically for your body type and performance goals.</>}
               </p>
               <div className="grid grid-cols-2 gap-4 text-xs font-bold text-[#E5E7EB]">
                 <div className="flex items-center space-x-2 bg-[#111820] p-3 rounded-xl border border-[#1C2329]">
