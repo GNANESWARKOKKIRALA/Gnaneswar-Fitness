@@ -41,6 +41,22 @@ import {
   Activity,
   Apple
 } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableItem } from '@/components/SortableItem';
 
 interface BlogPost {
   id: number;
@@ -232,6 +248,70 @@ export default function AdminDashboard() {
   };
 
   // Auth Protection Check
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent, listKey: 'clientTrans' | 'myTrans' | 'blogs') => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      if (listKey === 'clientTrans') {
+        const oldIndex = clientTrans.findIndex((item) => item.id === active.id);
+        const newIndex = clientTrans.findIndex((item) => item.id === over.id);
+        const newArray = arrayMove(clientTrans, oldIndex, newIndex);
+        setClientTrans(newArray);
+        
+        try {
+          const items = newArray.map((item, index) => ({ id: item.id, display_order: index }));
+          await apiFetch('/api/reorder', {
+            method: 'POST',
+            body: JSON.stringify({ table: 'client_transformations', items })
+          }, token!);
+        } catch (e) {
+          console.error('Failed to save order', e);
+        }
+      } else if (listKey === 'myTrans') {
+        const oldIndex = myTrans.findIndex((item) => item.id === active.id);
+        const newIndex = myTrans.findIndex((item) => item.id === over.id);
+        const newArray = arrayMove(myTrans, oldIndex, newIndex);
+        setMyTrans(newArray);
+        
+        try {
+          const items = newArray.map((item, index) => ({ id: item.id, display_order: index }));
+          await apiFetch('/api/reorder', {
+            method: 'POST',
+            body: JSON.stringify({ table: 'my_transformations', items })
+          }, token!);
+        } catch (e) {
+          console.error('Failed to save order', e);
+        }
+      } else if (listKey === 'blogs') {
+        const oldIndex = blogs.findIndex((item) => item.id === active.id);
+        const newIndex = blogs.findIndex((item) => item.id === over.id);
+        const newArray = arrayMove(blogs, oldIndex, newIndex);
+        setBlogs(newArray);
+        
+        try {
+          const items = newArray.map((item, index) => ({ id: item.id, display_order: index }));
+          await apiFetch('/api/reorder', {
+            method: 'POST',
+            body: JSON.stringify({ table: 'blog_posts', items })
+          }, token!);
+        } catch (e) {
+          console.error('Failed to save order', e);
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'admin')) {
       router.push('/login');
@@ -1032,10 +1112,17 @@ export default function AdminDashboard() {
                         <th className="p-4 text-right">Actions</th>
                       </tr>
                     </thead>
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={(e) => handleDragEnd(e, 'blogs')}
+                    >
                     <tbody className="divide-y divide-card-border">
+                      <SortableContext items={blogs.map(b => b.id)} strategy={rectSortingStrategy}>
                       {blogs.map((b) => (
-                        <tr key={b.id} className="hover:bg-card-bg/50">
-                          <td className="p-4">
+                        <SortableItem key={b.id} id={b.id} as="tr">
+                          <td className="p-4 flex items-center gap-2">
+                            <Menu className="w-4 h-4 text-gray-500 cursor-grab active:cursor-grabbing" />
                             <div className="h-12 w-16 rounded-lg overflow-hidden bg-black border border-card-border">
                               {b.cover_img ? (
                                 <img src={resolveMediaUrl(b.cover_img)} alt={b.title} className="h-full w-full object-cover" />
@@ -1080,9 +1167,11 @@ export default function AdminDashboard() {
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
                           </td>
-                        </tr>
+                        </SortableItem>
                       ))}
+                      </SortableContext>
                     </tbody>
+                    </DndContext>
                   </table>
                 </div>
               )}
@@ -1121,9 +1210,23 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {clientTrans.map((item) => (
-                <div key={item.id} className="glass-panel p-6 rounded-3xl border border-card-border space-y-4 flex flex-col justify-between">
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={(e) => handleDragEnd(e, 'clientTrans')}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <SortableContext 
+                  items={clientTrans.map(c => c.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  {clientTrans.map((item) => (
+                    <SortableItem key={item.id} id={item.id}>
+                      <div className="glass-panel p-6 rounded-3xl border border-card-border space-y-4 flex flex-col justify-between h-full group relative">
+                        {/* Drag Handle Overlay */}
+                        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-1 bg-black/50 rounded-full">
+                          <Menu className="w-5 h-5 text-gray-400" />
+                        </div>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-extrabold text-white">{item.client_name}</h3>
@@ -1223,9 +1326,22 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
-              {myTrans.map((item) => (
-                <div key={item.id} className="glass-panel p-6 rounded-3xl border border-card-border space-y-4">
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={(e) => handleDragEnd(e, 'myTrans')}
+            >
+              <div className="grid grid-cols-1 gap-6">
+                <SortableContext 
+                  items={myTrans.map(c => c.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  {myTrans.map((item) => (
+                    <SortableItem key={item.id} id={item.id}>
+                      <div className="glass-panel p-6 rounded-3xl border border-card-border space-y-4 group relative h-full">
+                        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-1 bg-black/50 rounded-full z-10">
+                          <Menu className="w-5 h-5 text-gray-400" />
+                        </div>
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-extrabold text-white">{item.title}</h3>
                     {item.is_published ? (
@@ -1292,8 +1408,11 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-              ))}
+              </SortableItem>
+            ))}
+            </SortableContext>
             </div>
+            </DndContext>
           </div>
         )}
 
