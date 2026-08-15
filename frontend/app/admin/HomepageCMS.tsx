@@ -54,7 +54,7 @@ export default function HomepageCMS() {
       await apiFetch(`/api/homepage/${section.section_id}`, {
         method: 'PUT',
         body: JSON.stringify(section)
-      }, token);
+      }, token || undefined);
       
       setActionMessage({ type: 'success', text: `${section.section_id} section saved successfully!` });
       setTimeout(() => setActionMessage(null), 3000);
