@@ -39,7 +39,8 @@ import {
   Eye,
   EyeOff,
   Activity,
-  Apple
+  Apple,
+  Menu
 } from 'lucide-react';
 import {
   DndContext,
@@ -1288,8 +1289,11 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                 </div>
-              ))}
+              </SortableItem>
+            ))}
+            </SortableContext>
             </div>
+            </DndContext>
           </div>
         )}
 
