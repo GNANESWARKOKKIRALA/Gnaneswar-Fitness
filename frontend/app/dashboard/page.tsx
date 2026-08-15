@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
 import { apiFetch } from '@/lib/api';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { 
   Dumbbell, 
   Settings, 
@@ -353,6 +354,16 @@ export default function UserDashboard() {
         setCoach(coachData);
       } catch (coachErr) {
         console.error("Coach not registered in system yet:", coachErr);
+      }
+
+      // Load AI chat history
+      try {
+        const aiHistory = await apiFetch('/api/ai/chat/history', {}, token);
+        if (aiHistory && aiHistory.length > 0) {
+          setAiChatMessages(aiHistory);
+        }
+      } catch (aiErr) {
+        console.error("Could not load AI chat history", aiErr);
       }
     } catch (err) {
       console.error("Error fetching dashboard details:", err);
@@ -1600,31 +1611,20 @@ export default function UserDashboard() {
               {/* History list & simple chart */}
               <div className="lg:col-span-7 space-y-6">
                 {progressEntries.length > 0 && (
-                  <div className="glass-panel p-6 rounded-3xl border border-card-border">
+                  <div className="glass-panel p-6 rounded-3xl border border-card-border h-72">
                     <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Weight Progress Chart</h3>
-                    <div className="h-40 flex items-end justify-between gap-2 pt-6 pb-2 border-b border-card-border">
-                      {progressEntries.slice(0, 10).reverse().map((entry, idx) => {
-                        const maxWeight = Math.max(...progressEntries.map(e => e.weight), 100);
-                        const minWeight = Math.min(...progressEntries.map(e => e.weight), 50);
-                        const range = maxWeight - minWeight || 10;
-                        const heightPct = Math.max(10, Math.min(100, ((entry.weight - minWeight) / range) * 80 + 20));
-                        return (
-                          <div key={entry.id} className="flex-1 flex flex-col items-center group relative cursor-pointer">
-                            {/* Bar */}
-                            <div 
-                              style={{ height: `${heightPct}%` }}
-                              className="w-full bg-gold/80 rounded-t group-hover:bg-gold transition-all duration-300 relative"
-                            >
-                              {/* Tooltip */}
-                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap mb-1">
-                                {entry.weight} kg
-                              </div>
-                            </div>
-                            <span className="text-[8px] text-gray-500 mt-2 truncate w-full text-center">{entry.date.slice(5)}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <ResponsiveContainer width="100%" height="80%">
+                      <LineChart data={[...progressEntries].reverse()}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1C2329" />
+                        <XAxis dataKey="date" stroke="#9ca3af" fontSize={10} tickFormatter={(val) => val.slice(5)} />
+                        <YAxis stroke="#9ca3af" fontSize={10} domain={['dataMin - 2', 'dataMax + 2']} />
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: '#050507', borderColor: '#1C2329', borderRadius: '12px' }}
+                          itemStyle={{ color: '#FCD34D', fontWeight: 'bold' }}
+                        />
+                        <Line type="monotone" dataKey="weight" stroke="#FCD34D" strokeWidth={3} dot={{ r: 4, fill: '#050507', stroke: '#FCD34D', strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
                 )}
 
