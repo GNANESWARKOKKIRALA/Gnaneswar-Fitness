@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from typing import List
 import requests
+from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.api.deps import get_current_user
-from app.models.models import User
+from app.models.models import User, AIChatMessage
+from app.models.database import get_db
 from app.services.ai_service import call_groq_api, generate_mock_workout_plan, generate_mock_diet_plan
 
 router = APIRouter(prefix="/ai", tags=["ai"])
@@ -22,6 +24,16 @@ class DietPlanRequest(BaseModel):
 class AIChatRequest(BaseModel):
     message: str
     history: List[dict] = []
+
+@router.get("/chat/history")
+def get_ai_chat_history(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    messages = db.query(AIChatMessage).filter(AIChatMessage.user_id == current_user.id).order_by(AIChatMessage.created_at.asc()).all()
+    # Map to format expected by frontend
+    history = [{"role": msg.role, "content": msg.content} for msg in messages]
+    return history
 
 @router.post("/workout-plan")
 def get_ai_workout_plan(
@@ -157,7 +169,8 @@ def get_local_chat_reply(message: str) -> str:
 @router.post("/chat")
 def chat_with_ai_coach(
     request: AIChatRequest,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     system_prompt = (
         "You are an elite bodybuilding and diet coach. Answer the user's fitness, diet, and training questions in detail. "
@@ -188,11 +201,21 @@ def chat_with_ai_coach(
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=15)
         if response.status_code != 200:
-            return {"reply": get_local_chat_reply(request.message)}
-        result = response.json()
-        return {"reply": result["choices"][0]["message"]["content"]}
+            reply_text = get_local_chat_reply(request.message)
+        else:
+            result = response.json()
+            reply_text = result["choices"][0]["message"]["content"]
     except Exception as e:
-        return {"reply": get_local_chat_reply(request.message)}
+        reply_text = get_local_chat_reply(request.message)
+
+    # Persist the user message and assistant reply to DB
+    user_msg = AIChatMessage(user_id=current_user.id, role="user", content=request.message)
+    ai_msg = AIChatMessage(user_id=current_user.id, role="assistant", content=reply_text)
+    db.add(user_msg)
+    db.add(ai_msg)
+    db.commit()
+
+    return {"reply": reply_text}
 
 @router.post("/public-chat")
 def public_chat_with_ai_coach(request: AIChatRequest):

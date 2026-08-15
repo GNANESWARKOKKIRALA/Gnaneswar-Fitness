@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.models.database import engine, Base
-from app.api import auth, programs, orders, admin, ai, progress, contact, templates, assignments, logs, chat, announcements, transformations, client_transformations, my_transformations, transformation_videos, blogs, settings_api
+from app.api import auth, programs, orders, admin, ai, progress, contact, templates, assignments, logs, chat, announcements, transformations, client_transformations, my_transformations, transformation_videos, blogs, settings_api, homepage, reorder, client_plans
 from app.core.config import settings
 
 # Create database tables if they do not exist
@@ -49,6 +49,9 @@ app.include_router(my_transformations.router, prefix="/api")
 app.include_router(transformation_videos.router, prefix="/api")
 app.include_router(blogs.router, prefix="/api")
 app.include_router(settings_api.router, prefix="/api")
+app.include_router(homepage.router) # Prefix already set inside router
+app.include_router(reorder.router) # Prefix already set inside router
+app.include_router(client_plans.router) # Prefix already set inside router
 
 # Serve Next.js static exported frontend
 frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "out"))

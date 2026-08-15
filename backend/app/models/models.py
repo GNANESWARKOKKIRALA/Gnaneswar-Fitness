@@ -27,6 +27,7 @@ class Program(Base):
     price = Column(Float, nullable=False)
     type = Column(String, nullable=False) # 'workout', 'diet', 'both'
     pdf_url = Column(String, nullable=True)
+    display_order = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     orders = relationship("Order", back_populates="program")
@@ -63,6 +64,7 @@ class ClientTransformation(Base):
     after_weight = Column(String, nullable=True)
     goal = Column(String, nullable=True, default="fat loss") # 'fat loss', 'muscle gain', etc.
     is_published = Column(Boolean, default=True)
+    display_order = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class MyTransformation(Base):
@@ -80,6 +82,7 @@ class MyTransformation(Base):
     after_weight = Column(String, nullable=True)
     category = Column(String, nullable=True, default="Bodybuilding Prep")
     is_published = Column(Boolean, default=True)
+    display_order = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class TransformationVideo(Base):
@@ -92,6 +95,7 @@ class TransformationVideo(Base):
     thumbnail_url = Column(String, nullable=True)
     video_url = Column(String, nullable=False)
     is_published = Column(Boolean, default=True)
+    display_order = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Transformation(Base):
@@ -130,6 +134,7 @@ class BlogPost(Base):
     tags = Column(String, nullable=True, default="fitness,nutrition")
     author = Column(String, nullable=True, default="Gnaneswar Kokkirala")
     is_published = Column(Boolean, default=True)
+    display_order = Column(Integer, default=0)
     published_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -220,3 +225,121 @@ class Announcement(Base):
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class WorkoutCategory(Base):
+    __tablename__ = "workout_categories"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False) # e.g. "Chest", "Back"
+    display_order = Column(Integer, default=0)
+    exercises = relationship("Exercise", back_populates="category", cascade="all, delete-orphan")
+
+class Exercise(Base):
+    __tablename__ = "exercises"
+    id = Column(Integer, primary_key=True, index=True)
+    category_id = Column(Integer, ForeignKey("workout_categories.id"))
+    name = Column(String, nullable=False)
+    image_url = Column(String, nullable=True)
+    video_url = Column(String, nullable=True)
+    default_sets = Column(String, nullable=True)
+    default_reps = Column(String, nullable=True)
+    default_rest = Column(String, nullable=True)
+    instructions = Column(Text, nullable=True)
+    difficulty = Column(String, nullable=True)
+    target_muscle = Column(String, nullable=True)
+    tips = Column(Text, nullable=True)
+    display_order = Column(Integer, default=0)
+    
+    category = relationship("WorkoutCategory", back_populates="exercises")
+
+class ClientWorkout(Base):
+    __tablename__ = "client_workouts"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    day_of_week = Column(String, nullable=False) # e.g. "Monday"
+    title = Column(String, nullable=True)
+    
+    exercises = relationship("ClientWorkoutExercise", back_populates="workout", cascade="all, delete-orphan")
+    user = relationship("User")
+
+class ClientWorkoutExercise(Base):
+    __tablename__ = "client_workout_exercises"
+    id = Column(Integer, primary_key=True, index=True)
+    workout_id = Column(Integer, ForeignKey("client_workouts.id"))
+    exercise_id = Column(Integer, ForeignKey("exercises.id"))
+    sets = Column(String, nullable=True)
+    reps = Column(String, nullable=True)
+    rest_time = Column(String, nullable=True)
+    instructions = Column(Text, nullable=True)
+    display_order = Column(Integer, default=0)
+    
+    workout = relationship("ClientWorkout", back_populates="exercises")
+    exercise = relationship("Exercise")
+
+class DietItem(Base):
+    __tablename__ = "diet_items"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    calories = Column(Float, default=0.0)
+    protein = Column(Float, default=0.0)
+    carbs = Column(Float, default=0.0)
+    fats = Column(Float, default=0.0)
+    display_order = Column(Integer, default=0)
+
+class ClientDiet(Base):
+    __tablename__ = "client_diets"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    meal_time = Column(String, nullable=False) # e.g. "Breakfast", "Lunch"
+    instructions = Column(Text, nullable=True)
+    display_order = Column(Integer, default=0)
+    
+    foods = relationship("ClientDietFood", back_populates="diet", cascade="all, delete-orphan")
+    user = relationship("User")
+
+class ClientDietFood(Base):
+    __tablename__ = "client_diet_foods"
+    id = Column(Integer, primary_key=True, index=True)
+    diet_id = Column(Integer, ForeignKey("client_diets.id"))
+    diet_item_id = Column(Integer, ForeignKey("diet_items.id"))
+    quantity = Column(String, nullable=True) # e.g. "100g", "2 scoops"
+    display_order = Column(Integer, default=0)
+    
+    diet = relationship("ClientDiet", back_populates="foods")
+    diet_item = relationship("DietItem")
+
+class ClientSchedule(Base):
+    __tablename__ = "client_schedules"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    water_target_ml = Column(Integer, default=3000)
+    sleep_target_hrs = Column(Integer, default=8)
+    cardio_target = Column(String, nullable=True)
+    steps_target = Column(Integer, default=10000)
+    supplements = Column(Text, nullable=True)
+    daily_instructions = Column(Text, nullable=True)
+    
+    user = relationship("User")
+
+class HomepageSection(Base):
+    __tablename__ = "homepage_sections"
+    id = Column(Integer, primary_key=True, index=True)
+    section_id = Column(String, unique=True, index=True) # e.g. "hero", "about", "services"
+    title = Column(String, nullable=True)
+    subtitle = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)
+    content = Column(Text, nullable=True)
+    cta_text = Column(String, nullable=True)
+    cta_url = Column(String, nullable=True)
+    is_visible = Column(Boolean, default=True)
+    display_order = Column(Integer, default=0)
+
+class AIChatMessage(Base):
+    __tablename__ = "ai_chat_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    role = Column(String, nullable=False) # "user" or "assistant"
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")

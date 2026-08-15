@@ -42,6 +42,7 @@ class ProgramBase(BaseModel):
     price: float
     type: str # 'workout', 'diet', 'both'
     pdf_url: Optional[str] = None
+    display_order: Optional[int] = 0
 
 class ProgramCreate(ProgramBase):
     pass
@@ -110,6 +111,7 @@ class ClientTransformationBase(BaseModel):
     after_weight: Optional[str] = None
     goal: Optional[str] = "fat loss"
     is_published: bool = True
+    display_order: Optional[int] = 0
 
 class ClientTransformationCreate(ClientTransformationBase):
     pass
@@ -134,6 +136,7 @@ class MyTransformationBase(BaseModel):
     after_weight: Optional[str] = None
     category: Optional[str] = "Bodybuilding Prep"
     is_published: bool = True
+    display_order: Optional[int] = 0
 
 class MyTransformationCreate(MyTransformationBase):
     pass
@@ -153,6 +156,7 @@ class TransformationVideoBase(BaseModel):
     thumbnail_url: Optional[str] = None
     video_url: Optional[str] = ""
     is_published: bool = True
+    display_order: Optional[int] = 0
 
 class TransformationVideoCreate(TransformationVideoBase):
     pass
@@ -189,6 +193,7 @@ class BlogPostBase(BaseModel):
     tags: Optional[str] = "fitness,nutrition"
     author: Optional[str] = "Gnaneswar Kokkirala"
     is_published: bool = True
+    display_order: Optional[int] = 0
 
 class BlogPostCreate(BlogPostBase):
     pass
@@ -335,3 +340,147 @@ class AnnouncementResponse(AnnouncementCreate):
 
     class Config:
         from_attributes = True
+
+# Structured Workout Schemas
+class ExerciseBase(BaseModel):
+    name: str
+    image_url: Optional[str] = None
+    video_url: Optional[str] = None
+    default_sets: Optional[str] = None
+    default_reps: Optional[str] = None
+    default_rest: Optional[str] = None
+    instructions: Optional[str] = None
+    difficulty: Optional[str] = None
+    target_muscle: Optional[str] = None
+    tips: Optional[str] = None
+    display_order: Optional[int] = 0
+
+class ExerciseResponse(ExerciseBase):
+    id: int
+    category_id: int
+
+    class Config:
+        from_attributes = True
+
+class WorkoutCategoryBase(BaseModel):
+    name: str
+    display_order: Optional[int] = 0
+
+class WorkoutCategoryResponse(WorkoutCategoryBase):
+    id: int
+    exercises: List[ExerciseResponse] = []
+
+    class Config:
+        from_attributes = True
+
+class ClientWorkoutExerciseBase(BaseModel):
+    exercise_id: int
+    sets: Optional[str] = None
+    reps: Optional[str] = None
+    rest_time: Optional[str] = None
+    instructions: Optional[str] = None
+    display_order: Optional[int] = 0
+
+class ClientWorkoutExerciseResponse(ClientWorkoutExerciseBase):
+    id: int
+    workout_id: int
+    exercise: ExerciseResponse
+
+    class Config:
+        from_attributes = True
+
+class ClientWorkoutBase(BaseModel):
+    day_of_week: str
+    title: Optional[str] = None
+
+class ClientWorkoutExerciseCreate(BaseModel):
+    exercise_id: int
+    sets: Optional[str] = None
+    reps: Optional[str] = None
+    rest_time: Optional[str] = None
+    instructions: Optional[str] = None
+    display_order: Optional[int] = 0
+
+class ClientWorkoutCreate(ClientWorkoutBase):
+    exercises: List[ClientWorkoutExerciseCreate] = []
+
+class ClientWorkoutResponse(ClientWorkoutBase):
+    id: int
+    user_id: int
+    exercises: List[ClientWorkoutExerciseResponse] = []
+
+    class Config:
+        from_attributes = True
+
+# Structured Diet Schemas
+class DietItemBase(BaseModel):
+    name: str
+    calories: Optional[float] = 0.0
+    protein: Optional[float] = 0.0
+    carbs: Optional[float] = 0.0
+    fats: Optional[float] = 0.0
+    display_order: Optional[int] = 0
+
+class DietItemResponse(DietItemBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class ClientDietFoodBase(BaseModel):
+    diet_item_id: int
+    quantity: Optional[str] = None
+    display_order: Optional[int] = 0
+
+class ClientDietFoodResponse(ClientDietFoodBase):
+    id: int
+    diet_id: int
+    diet_item: DietItemResponse
+
+    class Config:
+        from_attributes = True
+
+class ClientDietBase(BaseModel):
+    meal_time: str
+    instructions: Optional[str] = None
+    display_order: Optional[int] = 0
+
+class ClientDietFoodCreate(BaseModel):
+    diet_item_id: int
+    quantity: Optional[str] = None
+    display_order: Optional[int] = 0
+
+class ClientDietCreate(ClientDietBase):
+    foods: List[ClientDietFoodCreate] = []
+
+class ClientDietResponse(ClientDietBase):
+    id: int
+    user_id: int
+    foods: List[ClientDietFoodResponse] = []
+
+    class Config:
+        from_attributes = True
+
+# Client Schedule
+class ClientScheduleBase(BaseModel):
+    water_target_ml: Optional[int] = 3000
+    sleep_target_hrs: Optional[int] = 8
+    cardio_target: Optional[str] = None
+    steps_target: Optional[int] = 10000
+    supplements: Optional[str] = None
+    daily_instructions: Optional[str] = None
+
+class ClientScheduleResponse(ClientScheduleBase):
+    id: int
+    user_id: int
+
+    class Config:
+        from_attributes = True
+
+# Reordering Schema
+class ReorderItem(BaseModel):
+    id: int
+    display_order: int
+
+class ReorderRequest(BaseModel):
+    items: List[ReorderItem]
