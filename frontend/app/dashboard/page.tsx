@@ -71,17 +71,6 @@ interface ProgressEntry {
   measurements?: string;
 }
 
-interface AssignedPlan {
-  id: number;
-  title: string;
-  description: string;
-  type: string;
-  content: string;
-  file_url?: string;
-  schedule_type: string;
-  date_assigned: string;
-}
-
 interface ChatMessage {
   id: number;
   sender_id: number;
@@ -110,7 +99,9 @@ export default function UserDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [unlockedPlans, setUnlockedPlans] = useState<Order[]>([]);
   const [progressEntries, setProgressEntries] = useState<ProgressEntry[]>([]);
-  const [assignedPlans, setAssignedPlans] = useState<AssignedPlan[]>([]);
+  const [clientWorkouts, setClientWorkouts] = useState<any[]>([]);
+  const [clientDiets, setClientDiets] = useState<any[]>([]);
+  const [clientSchedule, setClientSchedule] = useState<any>(null);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [coach, setCoach] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -331,9 +322,16 @@ export default function UserDashboard() {
       const progressData = await apiFetch('/api/progress', {}, token);
       setProgressEntries(progressData);
 
-      // Load assigned plans from coach
-      const assignData = await apiFetch('/api/assignments/me', {}, token);
-      setAssignedPlans(assignData);
+      if (user?.id) {
+        const [workouts, diets, schedule] = await Promise.all([
+          apiFetch(`/api/client-plans/${user.id}/workouts`, {}, token),
+          apiFetch(`/api/client-plans/${user.id}/diets`, {}, token),
+          apiFetch(`/api/client-plans/${user.id}/schedule`, {}, token)
+        ]);
+        setClientWorkouts(workouts || []);
+        setClientDiets(diets || []);
+        setClientSchedule(schedule || null);
+      }
 
       // Load announcements
       const annData = await apiFetch('/api/announcements', {}, token);
@@ -702,9 +700,7 @@ export default function UserDashboard() {
     );
   }
 
-  // Filter assigned workouts and diet plans
-  const assignedWorkouts = assignedPlans.filter(p => p.type === 'workout');
-  const assignedDiets = assignedPlans.filter(p => p.type === 'diet');
+
 
   return (
     <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -912,32 +908,29 @@ export default function UserDashboard() {
                   <span>My Active Workouts</span>
                 </h3>
                 
-                {assignedWorkouts.length === 0 ? (
+                {clientWorkouts.length === 0 ? (
                   <div className="glass-panel p-8 rounded-3xl border border-card-border text-center text-gray-400 text-sm">
                     No active workout assigned by your coach for today. Custom workout plans appear here.
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {assignedWorkouts.map(plan => (
+                    {clientWorkouts.map(plan => (
                       <div key={plan.id} className="glass-panel p-6 rounded-3xl border border-card-border space-y-4">
                         <div className="flex justify-between items-start">
                           <div>
                             <h4 className="text-lg font-bold text-white">{plan.title}</h4>
-                            <p className="text-xs text-gray-400 capitalize mt-0.5">Assigned date: {plan.date_assigned} | {plan.schedule_type} schedule</p>
+                            <p className="text-xs text-gray-400 capitalize mt-0.5">{plan.day_of_week} Workout</p>
                           </div>
-                          {plan.file_url && (
-                            <a 
-                              href={resolveMediaUrl(plan.file_url)} 
-                              target="_blank" 
-                              rel="noreferrer"
-                              className="text-xs text-gold border border-gold/20 hover:border-gold px-3.5 py-1.5 rounded-full transition-all flex items-center space-x-1.5"
-                            >
-                              <Download className="h-3.5 w-3.5" />
-                              <span>Download PDF</span>
-                            </a>
-                          )}
                         </div>
-                        <p className="text-sm text-gray-300 leading-relaxed bg-[#050507] p-4 rounded-2xl border border-card-border whitespace-pre-wrap font-mono text-xs">{plan.content}</p>
+                        <div className="bg-[#050507] p-4 rounded-2xl border border-card-border space-y-2">
+                          {plan.exercises?.map((ex: any, idx: number) => (
+                            <div key={idx} className="flex justify-between items-center text-sm border-b border-[#1C2329] pb-2 last:border-0 last:pb-0">
+                              <span className="text-white font-bold flex-1">Ex ID: {ex.exercise_id}</span>
+                              <span className="text-gray-400 w-24 text-right">{ex.sets} sets x {ex.reps}</span>
+                              <span className="text-gold w-20 text-right text-xs">Rest: {ex.rest_time}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -951,34 +944,62 @@ export default function UserDashboard() {
                   <span>My Diet & Meal Plans</span>
                 </h3>
                 
-                {assignedDiets.length === 0 ? (
+                {clientDiets.length === 0 ? (
                   <div className="glass-panel p-8 rounded-3xl border border-card-border text-center text-gray-400 text-sm">
                     No custom diet plan assigned yet. Meal calorie sheets and nutrition guidelines appear here.
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {assignedDiets.map(plan => (
+                    {clientDiets.map(plan => (
                       <div key={plan.id} className="glass-panel p-6 rounded-3xl border border-card-border space-y-4">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h4 className="text-lg font-bold text-white">{plan.title}</h4>
-                            <p className="text-xs text-gray-400 capitalize mt-0.5">Assigned date: {plan.date_assigned} | {plan.schedule_type} schedule</p>
+                            <h4 className="text-lg font-bold text-white">{plan.meal_time}</h4>
+                            <p className="text-xs text-gray-400 capitalize mt-0.5">{plan.instructions}</p>
                           </div>
-                          {plan.file_url && (
-                            <a 
-                              href={resolveMediaUrl(plan.file_url)} 
-                              target="_blank" 
-                              rel="noreferrer"
-                              className="text-xs text-gold border border-gold/20 hover:border-gold px-3.5 py-1.5 rounded-full transition-all flex items-center space-x-1.5"
-                            >
-                              <Download className="h-3.5 w-3.5" />
-                              <span>Download Diet PDF</span>
-                            </a>
-                          )}
                         </div>
-                        <p className="text-sm text-gray-300 leading-relaxed bg-[#050507] p-4 rounded-2xl border border-card-border whitespace-pre-wrap font-mono text-xs">{plan.content}</p>
+                        <div className="bg-[#050507] p-4 rounded-2xl border border-card-border space-y-2">
+                          {plan.foods?.map((food: any, idx: number) => (
+                            <div key={idx} className="flex justify-between items-center text-sm border-b border-[#1C2329] pb-2 last:border-0 last:pb-0">
+                              <span className="text-white font-bold flex-1">Food Item ID: {food.diet_item_id}</span>
+                              <span className="text-gray-400 w-24 text-right">Qty: {food.quantity}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Schedule Targets */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-white flex items-center space-x-2">
+                  <Activity className="h-5 w-5 text-gold" />
+                  <span>My Daily Targets</span>
+                </h3>
+                {clientSchedule ? (
+                  <div className="glass-panel p-6 rounded-3xl border border-card-border grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-[#050507] p-4 rounded-2xl border border-card-border text-center">
+                      <p className="text-xs text-gray-400 mb-1">Water Target</p>
+                      <p className="text-lg font-bold text-[#00BFFF]">{clientSchedule.water_target_ml} ml</p>
+                    </div>
+                    <div className="bg-[#050507] p-4 rounded-2xl border border-card-border text-center">
+                      <p className="text-xs text-gray-400 mb-1">Sleep Target</p>
+                      <p className="text-lg font-bold text-indigo-400">{clientSchedule.sleep_target_hrs} hrs</p>
+                    </div>
+                    <div className="bg-[#050507] p-4 rounded-2xl border border-card-border text-center">
+                      <p className="text-xs text-gray-400 mb-1">Steps Goal</p>
+                      <p className="text-lg font-bold text-green-400">{clientSchedule.steps_target}</p>
+                    </div>
+                    <div className="bg-[#050507] p-4 rounded-2xl border border-card-border text-center">
+                      <p className="text-xs text-gray-400 mb-1">Cardio Target</p>
+                      <p className="text-lg font-bold text-orange-400">{clientSchedule.cardio_target || 'None'}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="glass-panel p-8 rounded-3xl border border-card-border text-center text-gray-400 text-sm">
+                    No schedule targets set yet.
                   </div>
                 )}
               </div>
