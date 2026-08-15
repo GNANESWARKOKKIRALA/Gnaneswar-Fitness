@@ -6,7 +6,7 @@ import {
   Users, Check, X, Search, Edit, Trash2, Calendar, Activity, 
   ChevronRight, Dumbbell, Apple, Plus, ArrowLeft, CheckCircle2, AlertCircle
 } from 'lucide-react';
-import PlanBuilder from './PlanBuilder';
+import ClientPlanManager from './ClientPlanManager';
 
 interface Client {
   id: number;
@@ -205,10 +205,21 @@ export default function ClientManagement() {
               onClick={() => setIsAssignPlanOpen(true)}
               className="px-6 py-2 bg-[#00BFFF] text-black font-bold uppercase rounded-full hover:bg-white transition-all shadow-[0_0_15px_rgba(0,191,255,0.3)] hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] flex items-center gap-2 text-sm"
             >
-              <Plus className="w-4 h-4" /> Assign Plan
+              <Dumbbell className="w-4 h-4" /> Manage Workouts & Diets
             </button>
           </div>
         </div>
+
+        {isAssignPlanOpen && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#050505] border border-[#1C2329] rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden relative">
+              <ClientPlanManager 
+                clientId={selectedClient.id} 
+                onClose={() => setIsAssignPlanOpen(false)} 
+              />
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Assigned Plans Panel */}
@@ -290,61 +301,6 @@ export default function ClientManagement() {
           </div>
         </div>
 
-        {/* Assign Plan Modal */}
-        {isAssignPlanOpen && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[#0B0F12] border border-[#1C2329] rounded-2xl p-6 w-full max-w-2xl">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold font-bebas tracking-wider text-white">Assign Plan</h3>
-                <button onClick={() => setIsAssignPlanOpen(false)} className="text-gray-400 hover:text-white p-2">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-              <form onSubmit={handleAssignPlan} className="space-y-5">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Title</label>
-                    <input 
-                      type="text" required
-                      className="w-full bg-[#050505] border border-[#1C2329] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00BFFF] transition-colors"
-                      value={assignForm.title} onChange={e => setAssignForm({...assignForm, title: e.target.value})}
-                      placeholder="e.g. Chest Hypertrophy"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Type</label>
-                    <select
-                      className="w-full bg-[#050505] border border-[#1C2329] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00BFFF] transition-colors"
-                      value={assignForm.type} onChange={e => setAssignForm({...assignForm, type: e.target.value})}
-                    >
-                      <option value="workout">Workout</option>
-                      <option value="diet">Diet</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Date (Optional)</label>
-                  <input 
-                    type="date"
-                    className="w-full bg-[#050505] border border-[#1C2329] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00BFFF] transition-colors"
-                    value={assignForm.date_assigned} onChange={e => setAssignForm({...assignForm, date_assigned: e.target.value})}
-                  />
-                </div>
-                <div className="max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Plan Content Builder</label>
-                  <PlanBuilder 
-                    type={assignForm.type} 
-                    value={assignForm.content} 
-                    onChange={(val) => setAssignForm({...assignForm, content: val})} 
-                  />
-                </div>
-                <button type="submit" className="w-full bg-[#00BFFF] text-black font-bold uppercase py-4 rounded-xl hover:bg-white transition-all mt-4">
-                  Assign Plan
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
